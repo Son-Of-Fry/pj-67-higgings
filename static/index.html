@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huggins — AI-Native Agile & MCP Platform</title>
+  
+  <!-- Bootstrap 5 Local -->
+  <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Vendor JS Local -->
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/static/vendor/marked.min.js"></script>
+  <script src="/static/vendor/mermaid.min.js"></script>
+</head>
+<body>
+
+  <!-- Topbar Principal estilo Jira -->
+  <header class="jira-topbar">
+    <div class="jira-logo-box">
+      <div class="jira-logo-badge">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z"/></svg>
+      </div>
+      <span class="jira-brand-name">Huggins</span>
+      
+      <!-- Selector de Proyecto -->
+      <select id="project-selector" class="project-selector-dropdown ms-2"></select>
+      <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
+    </div>
+
+    <!-- Barra de Búsqueda Centrada -->
+    <div class="jira-search-bar">
+      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search tasks, docs, keys..." autocomplete="off">
+    </div>
+
+    <!-- Acciones Derecha (Theme Toggle) -->
+    <div class="d-flex align-items-center gap-2">
+      <!-- Toggle Modo Claro / Oscuro -->
+      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Alternar Modo Claro / Oscuro">
+        <span id="theme-text" class="small fw-semibold">Tema</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Subheader con Título y Navegación de Vistas -->
+  <section class="jira-subheader">
+    <div class="project-title-row">
+      <div class="project-heading">
+        <h1 id="current-project-title" class="project-name-text" title="Clic para editar nombre y URL de GitHub" style="cursor: pointer;">PJ-00 Tutorial</h1>
+        <span id="active-sprint-badge" class="badge bg-secondary-subtle text-secondary-emphasis border px-2 py-1 fs-7">
+          Sprint 1
+        </span>
+      </div>
+      
+      <div class="d-flex align-items-center gap-2">
+        <!-- Direct Link to GitHub Repository -->
+        <a id="project-github-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 py-1 px-2.5" style="border-radius: 6px; text-decoration: none;" title="Abrir repositorio en GitHub (o clic para configurar)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span id="project-github-label" class="small fw-semibold">GitHub</span>
+          <span class="small opacity-50">↗</span>
+        </a>
+        <span class="badge bg-success-subtle text-success border">● MCP Online</span>
+      </div>
+    </div>
+
+    <!-- Pestañas de Navegación estilo Jira (Sin iconos / Emojis) -->
+    <nav class="jira-nav-tabs">
+      <div class="jira-tab active" data-tab="home">Home (Readme)</div>
+      <div class="jira-tab" data-tab="board">Tablero (Board)</div>
+      <div class="jira-tab" data-tab="work-items">Work items (Lista)</div>
+      <div class="jira-tab" data-tab="changelog">Releases & Updates</div>
+      <div class="jira-tab" data-tab="metrics">Métricas del Proyecto</div>
+    </nav>
+  </section>
+
+  <!-- Espacio de Trabajo Principal -->
+  <div class="app-workspace">
+
+    <!-- Vista Principal Cambiable -->
+    <main class="main-view-container">
+
+      <!-- 0. VISTA HOME (README MARKDOWN EDITABLE) -->
+      <div id="view-home" class="view-panel active p-4" style="overflow-y: auto; height: 100%;">
+        <div class="container" style="max-width: 920px;">
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div>
+              <h3 id="home-readme-title" class="fs-5 fw-bold mb-0">README del Proyecto</h3>
+              <span class="text-muted small">Documentación central y guía editable en Markdown.</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button id="btn-edit-readme" class="btn btn-sm btn-outline-primary py-1 px-3">Editar Readme</button>
+              <button id="btn-save-readme" class="btn btn-sm btn-primary py-1 px-3" style="display:none;">Guardar Cambios</button>
+              <button id="btn-cancel-readme" class="btn btn-sm btn-outline-secondary py-1 px-3" style="display:none;">Cancelar</button>
+            </div>
+          </div>
+
+          <!-- Modo Lectura / Renderizado -->
+          <div id="readme-view-container">
+            <div id="readme-rendered-content" class="markdown-body p-4 border rounded shadow-sm bg-body"></div>
+          </div>
+
+          <!-- Modo Edición -->
+          <div id="readme-edit-container" style="display:none;">
+            <div class="form-text small text-muted mb-2">Escribe en Markdown estándar (títulos, listas, código, enlaces). También editable desde agentes MCP.</div>
+            <textarea id="readme-editor-textarea" class="form-control font-monospace mb-3" rows="18" placeholder="# Titulo del proyecto..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. VISTA BOARD (KANBAN CON BACKLOG INTEGRADO) -->
+      <div id="view-board" class="view-panel h-100" style="display:none;">
+        <div id="board-columns-container" class="jira-board-viewport"></div>
+      </div>
+
+      <!-- 2. VISTA WORK ITEMS (LISTA JERÁRQUICA POR FASES) -->
+      <div id="view-work-items" class="view-panel p-4" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h3 class="fs-5 fw-bold mb-1">Work items</h3>
+            <p class="text-muted small mb-0">Lista jerárquica organizada por fases de desarrollo.</p>
+          </div>
+          <button id="btn-add-work-item" class="btn btn-sm btn-outline-primary">+ Add Item</button>
+        </div>
+        <div id="work-items-container" class="work-items-viewport p-0"></div>
+      </div>
+
+
+      <!-- 4. VISTA RELEASES & UPDATES -->
+      <div id="view-changelog" class="view-panel p-4" style="display:none;">
+        <div class="container" style="max-width: 840px;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3 class="fs-5 fw-bold mb-1">Releases & Sprint Retrospectives</h3>
+              <p class="text-muted small mb-0">Registro histórico de versiones entregadas.</p>
+            </div>
+            <button id="btn-add-release" class="btn btn-sm btn-primary">+ Log Release</button>
+          </div>
+          <div id="releases-container" class="d-flex flex-direction-column gap-3"></div>
+        </div>
+      </div>
+
+      <!-- 5. VISTA MÉTRICAS DEL PROYECTO -->
+      <div id="view-metrics" class="view-panel p-4" style="display:none;">
+        <div class="container" style="max-width: 1040px;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3 class="fs-5 fw-bold mb-1">Métricas Generales del Proyecto & Progreso Scrum</h3>
+              <p class="text-muted small mb-0">Monitoreo de tareas totales, velocidad de sprint, distribución por estado y prioridades.</p>
+            </div>
+            <button id="btn-refresh-metrics" class="btn btn-sm btn-outline-secondary">Actualizar</button>
+          </div>
+
+          <!-- KPI Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card p-3 border shadow-sm">
+                <span class="text-muted small fw-semibold text-uppercase">Total de Tareas</span>
+                <span id="metric-total-tasks" class="fs-2 fw-bold text-primary">0</span>
+                <span id="metric-tasks-breakdown" class="text-muted small">0 completadas · 0 pendientes</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card p-3 border shadow-sm">
+                <span class="text-muted small fw-semibold text-uppercase">Velocidad del Sprint</span>
+                <span id="metric-velocity" class="fs-2 fw-bold text-body">0 pts</span>
+                <span id="metric-points-breakdown" class="text-muted small">Story points completados</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card p-3 border shadow-sm">
+                <span class="text-muted small fw-semibold text-uppercase">Tasa de Cumplimiento</span>
+                <span id="metric-completion" class="fs-2 fw-bold text-success">0%</span>
+                <div class="progress mt-1" style="height: 5px;">
+                  <div id="metric-completion-bar" class="progress-bar bg-success" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card p-3 border shadow-sm">
+                <span class="text-muted small fw-semibold text-uppercase">En Progreso</span>
+                <span id="metric-in-progress" class="fs-2 fw-bold text-info">0</span>
+                <span class="text-muted small">Historias en desarrollo activo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paneles de Distribución -->
+          <div class="row g-4 mb-4">
+            <!-- Distribución por Estado / Columnas -->
+            <div class="col-md-6">
+              <div class="card p-3 border shadow-sm h-100">
+                <h5 class="fs-6 fw-bold mb-3">Distribución por Estado (Columnas)</h5>
+                <div id="status-distribution-container" class="d-flex flex-column gap-3"></div>
+              </div>
+            </div>
+
+            <!-- Distribución por Prioridad -->
+            <div class="col-md-6">
+              <div class="card p-3 border shadow-sm h-100">
+                <h5 class="fs-6 fw-bold mb-3">Puntos de Historia por Prioridad</h5>
+                <div id="priority-distribution-container" class="d-flex flex-column gap-3"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Distribución por Miembro del Equipo -->
+          <div class="card p-4 border shadow-sm mb-4">
+            <h5 class="fs-6 fw-bold mb-3">Carga de Trabajo por Responsable / Miembro</h5>
+            <div id="assignees-distribution-bars" class="d-flex flex-column gap-3"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal de Creación / Edición de Tareas con Selector de Agente -->
+  <div id="task-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Crear / Editar Tarea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Título de la tarea:</label>
+            <input type="text" id="modal-task-title" class="form-control" placeholder="What needs to be done?">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Columna:</label>
+              <select id="modal-task-column" class="form-select form-select-sm"></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Agente Asignado:</label>
+              <select id="modal-task-assignee" class="form-select form-select-sm">
+                <option value="Claude Agent">Claude Agent</option>
+                <option value="Cursor">Cursor</option>
+                <option value="Figma Agent">Figma Agent</option>
+                <option value="Rich (Humano)">Rich (Humano)</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Story Points:</label>
+              <select id="modal-task-points" class="form-select form-select-sm">
+                <option value="1">1 pt</option>
+                <option value="2">2 pts</option>
+                <option value="3">3 pts</option>
+                <option value="5">5 pts</option>
+                <option value="8">8 pts</option>
+                <option value="13">13 pts</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Fase (Work item):</label>
+              <select id="modal-task-phase" class="form-select form-select-sm">
+                <option value="Phase 1">Phase 1</option>
+                <option value="Phase 2">Phase 2</option>
+                <option value="Phase 3">Phase 3</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Sprint / Backlog:</label>
+              <select id="modal-task-sprint" class="form-select form-select-sm"></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Prioridad:</label>
+              <select id="modal-task-priority" class="form-select form-select-sm">
+                <option value="low">Baja</option>
+                <option value="medium">Media</option>
+                <option value="high">Alta</option>
+                <option value="urgent">Urgente</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Tags (separados por coma):</label>
+              <input type="text" id="modal-task-tags" class="form-control form-control-sm" placeholder="Frontend, API, Auth">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Documentación / Notas Markdown:</label>
+            <textarea id="modal-task-desc" class="form-control font-monospace" rows="6" placeholder="Detalles, checklists y notas técnicas..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button id="btn-modal-delete-task" class="btn btn-sm btn-outline-danger me-auto" style="display:none;">Eliminar</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button id="btn-modal-save-task" class="btn btn-sm btn-primary">Guardar Tarea</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Creación de Release -->
+  <div id="release-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Registrar Nueva Versión (Release)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Tag de Versión:</label>
+            <input type="text" id="modal-release-tag" class="form-control" placeholder="v1.0.0, v0.2.0, etc.">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Título del Release:</label>
+            <input type="text" id="modal-release-title" class="form-control" placeholder="Ej. Lanzamiento Módulo de Reportes">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Notas de Entrega / Changelog (Markdown):</label>
+            <textarea id="modal-release-notes" class="form-control font-monospace" rows="5" placeholder="Detalles de features entregadas, fixes y mejoras..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button id="btn-modal-save-release" class="btn btn-sm btn-primary">Guardar Release</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Configuración del Proyecto (GitHub Repo & Metadatos) -->
+  <div id="project-settings-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Configuración del Proyecto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Nombre del Proyecto:</label>
+            <input type="text" id="modal-proj-name" class="form-control" placeholder="Ej. PJ-67 Platform">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">URL de Repositorio GitHub:</label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+              </span>
+              <input type="url" id="modal-proj-github" class="form-control" placeholder="https://github.com/usuario/repo">
+            </div>
+            <div class="form-text small text-muted">Enlace directo para navegar a este repositorio desde la barra superior.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Descripción:</label>
+            <textarea id="modal-proj-desc" class="form-control" rows="3" placeholder="Propósito del proyecto..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button id="btn-modal-save-proj" class="btn btn-sm btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

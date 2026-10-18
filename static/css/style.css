@@ -1,0 +1,598 @@
+/* ========================================================
+   PJ-67 Atlassian/Jira SDLC Theme with Bootstrap 5
+   Full Light / Dark Mode support & AI Native Features
+   ======================================================== */
+
+:root, [data-bs-theme="light"] {
+  --app-bg: #f7f8f9;
+  --header-bg: #ffffff;
+  --sidebar-bg: #f4f5f7;
+  --card-bg: #ffffff;
+  --card-hover-bg: #fafbfc;
+  --border-subtle: #dfe1e6;
+  --border-focus: #4c9aff;
+  
+  --text-title: #172b4d;
+  --text-body: #253858;
+  --text-muted: #6b778c;
+  
+  --jira-blue: #0052cc;
+  --jira-blue-hover: #0747a6;
+  --jira-blue-subtle: #deebff;
+  
+  --agent-claude: #d97706;
+  --agent-claude-bg: #fef3c7;
+  --agent-cursor: #2563eb;
+  --agent-cursor-bg: #dbeafe;
+  --agent-figma: #7c3aed;
+  --agent-figma-bg: #ede9fe;
+  
+  --font-jira: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+[data-bs-theme="dark"] {
+  --app-bg: #0d1117;
+  --header-bg: #161b22;
+  --sidebar-bg: #11141c;
+  --card-bg: #1c2128;
+  --card-hover-bg: #22272e;
+  --border-subtle: #30363d;
+  --border-focus: #58a6ff;
+  
+  --text-title: #f0f6fc;
+  --text-body: #c9d1d9;
+  --text-muted: #8b949e;
+  
+  --jira-blue: #388bfd;
+  --jira-blue-hover: #1f6feb;
+  --jira-blue-subtle: rgba(56, 139, 253, 0.15);
+  
+  --agent-claude: #f59e0b;
+  --agent-claude-bg: rgba(245, 158, 11, 0.18);
+  --agent-cursor: #60a5fa;
+  --agent-cursor-bg: rgba(96, 165, 250, 0.18);
+  --agent-figma: #a78bfa;
+  --agent-figma-bg: rgba(167, 139, 250, 0.18);
+}
+
+body {
+  font-family: var(--font-jira);
+  background-color: var(--app-bg);
+  color: var(--text-body);
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================================
+   Top Navigation Bar (Jira Style)
+   ======================================================== */
+
+.jira-topbar {
+  height: 54px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  z-index: 100;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+}
+
+.jira-logo-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.jira-logo-badge {
+  width: 28px;
+  height: 28px;
+  background: var(--jira-blue);
+  color: white;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.jira-brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-title);
+  letter-spacing: -0.2px;
+}
+
+.jira-search-bar {
+  max-width: 420px;
+  min-width: 180px;
+  flex: 1;
+  margin: 0 20px;
+  position: relative;
+}
+
+.jira-search-input {
+  width: 100%;
+  height: 34px;
+  background: var(--app-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0 12px 0 34px;
+  font-size: 13px;
+  color: var(--text-body);
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.jira-search-input:focus {
+  border-color: var(--border-focus);
+  background: var(--header-bg);
+  box-shadow: 0 0 0 2px rgba(76, 154, 255, 0.2);
+}
+
+.jira-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* ========================================================
+   Subheader & Navigation Tabs
+   ======================================================== */
+
+.jira-subheader {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 14px 24px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.project-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.project-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-name-text {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-title);
+  margin: 0;
+}
+
+.project-selector-dropdown {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-body);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+}
+
+.jira-nav-tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  overflow-x: auto;
+}
+
+.jira-tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.jira-tab:hover {
+  color: var(--text-title);
+}
+
+.jira-tab.active {
+  color: var(--jira-blue);
+  border-bottom-color: var(--jira-blue);
+}
+
+/* ========================================================
+   Main Workspace Layout
+   ======================================================== */
+
+.app-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.main-view-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ========================================================
+   Board View (Kanban) — Image 1 Style
+   ======================================================== */
+
+.jira-board-viewport {
+  padding: 18px 24px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.jira-column {
+  flex: 0 0 290px;
+  background: var(--sidebar-bg);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 150px);
+}
+
+.jira-col-header {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jira-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jira-card-list {
+  padding: 0 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  min-height: 120px;
+}
+
+.jira-card-list.drag-over {
+  background: rgba(0, 82, 204, 0.04);
+  outline: 2px dashed var(--jira-blue);
+  border-radius: 6px;
+}
+
+/* Inline Quick Create in Column */
+.quick-create-box {
+  padding: 8px 10px;
+}
+
+.quick-create-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: var(--text-body);
+  outline: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.quick-create-input:focus {
+  border-color: var(--border-focus);
+}
+
+/* Jira Cards */
+.jira-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 12px;
+  cursor: grab;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jira-card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--border-focus);
+  transform: translateY(-1px);
+}
+
+.jira-card.dragging {
+  opacity: 0.35;
+}
+
+.card-key-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-key {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--jira-blue);
+}
+
+.card-title-text {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-title);
+}
+
+.card-agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.agent-claude {
+  background: var(--agent-claude-bg);
+  color: var(--agent-claude);
+}
+
+.agent-cursor {
+  background: var(--agent-cursor-bg);
+  color: var(--agent-cursor);
+}
+
+.agent-figma {
+  background: var(--agent-figma-bg);
+  color: var(--agent-figma);
+}
+
+.agent-rich {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.agent-default {
+  background: var(--app-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ========================================================
+   Work Items View (Hierarchical Table) — Image 4 Style
+   ======================================================== */
+
+.work-items-viewport {
+  padding: 24px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.phase-group {
+  margin-bottom: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.phase-header {
+  background: var(--sidebar-bg);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-title);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.items-table th, .items-table td {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.items-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: var(--app-bg);
+}
+
+/* ========================================================
+   Technical Plan / Confluence View — Image 2 & 3 Style
+   ======================================================== */
+
+.doc-plan-viewport {
+  padding: 32px 48px;
+  max-width: 960px;
+  width: 100%;
+  line-height: 1.7;
+}
+
+.doc-plan-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-title);
+  margin-bottom: 8px;
+}
+
+.doc-plan-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.architecture-diagram-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* SVG icons */
+.jira-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* Markdown Body Styles */
+.markdown-body {
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+  color: var(--text-title);
+  font-weight: 700;
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-body h1:first-child, .markdown-body h2:first-child {
+  margin-top: 0;
+}
+
+.markdown-body h1 {
+  font-size: 1.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.3em;
+}
+
+.markdown-body h2 {
+  font-size: 1.35rem;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.25em;
+}
+
+.markdown-body h3 {
+  font-size: 1.15rem;
+}
+
+.markdown-body p, .markdown-body ul, .markdown-body ol {
+  margin-bottom: 1em;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  background-color: var(--border-subtle);
+  color: var(--jira-blue);
+}
+
+.markdown-body pre {
+  background-color: var(--card-hover-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 14px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid var(--jira-blue);
+  padding-left: 14px;
+  color: var(--text-muted);
+  margin-left: 0;
+  margin-bottom: 1em;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+
+.markdown-body th, .markdown-body td {
+  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+}
+
+.markdown-body th {
+  background-color: var(--card-hover-bg);
+  font-weight: 600;
+}
+
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: 1.5em 0;
+}
