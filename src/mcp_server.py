@@ -818,13 +818,13 @@ async def sse_endpoint(request: Request):
         yield f"event: endpoint\ndata: /messages?session_id={session_id}\n\n"
         try:
             while True:
-                if await request.is_disconnected():
-                    break
                 try:
                     data = await asyncio.wait_for(queue.get(), timeout=15.0)
                     yield f"event: message\ndata: {json.dumps(data)}\n\n"
                 except asyncio.TimeoutError:
                     yield ": ping\n\n"
+        except (asyncio.CancelledError, GeneratorExit):
+            pass
         finally:
             active_sessions.pop(session_id, None)
 
