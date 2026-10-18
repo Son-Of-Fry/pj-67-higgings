@@ -187,12 +187,6 @@ Este documento está escrito en formato **Markdown** y puedes editarlo en cualqu
 
             conn.commit()
 
-            # Semilla inicial para Bitácora si está vacía
-            cursor.execute("SELECT COUNT(*) FROM bitacora_entries")
-            if cursor.fetchone()[0] == 0:
-                self._seed_bitacora_entries(cursor)
-                conn.commit()
-
             # Semilla inicial si no hay proyectos
             cursor.execute("SELECT COUNT(*) FROM projects")
             if cursor.fetchone()[0] == 0:
@@ -206,6 +200,12 @@ Este documento está escrito en formato **Markdown** y puedes editarlo en cualqu
                     self._seed_tutorial_project(cursor)
                     conn.commit()
 
+            # Semilla inicial para Bitácora si está vacía
+            cursor.execute("SELECT COUNT(*) FROM bitacora_entries")
+            if cursor.fetchone()[0] == 0:
+                self._seed_bitacora_entries(cursor)
+                conn.commit()
+
     def _seed_tutorial_project(self, cursor: sqlite3.Cursor):
         # Proyecto 0: PJ-00 Tutorial (Onboarding)
         cursor.execute(
@@ -213,77 +213,6 @@ Este documento está escrito en formato **Markdown** y puedes editarlo en cualqu
             ("PJ-00 Tutorial", "Proyecto interactivo de bienvenida y tutorial guiado para aprender el flujo Scrum, gestión ágil y conexión con agentes MCP.", "https://github.com/rich/huggins-tutorial")
         )
         p0_id = cursor.lastrowid
-
-    def _seed_bitacora_entries(self, cursor: sqlite3.Cursor):
-        cursor.execute("SELECT id, name FROM projects")
-        projects = {row["name"]: row["id"] for row in cursor.fetchall()}
-
-        pj67_id = None
-        pj65_id = None
-        pj00_id = None
-        for name, pid in projects.items():
-            if "PJ-67" in name or "Huggins" in name:
-                pj67_id = pid
-            elif "PJ-65" in name:
-                pj65_id = pid
-            elif "PJ-00" in name:
-                pj00_id = pid
-
-        pj67_entry = """**Proyecto:**  
-PJ-67 (Huggins — AI-Native Agile Management Platform & MCP Server)
-
-**Actividades:**  
-Integración y despliegue de servidor MCP SSE nativo en Docker sobre Raspberry Pi vía Tailscale, Product Backlog en el tablero, Home (README) interactivo y soporte de Scale-to-Zero con Sablier y Traefik.
-
-**Herramientas/IA:**  
-FastAPI, SQLite (modo WAL), Bootstrap 5, Vanilla JS, Marked.js, Docker, Traefik, Sablier, Claude Desktop, Cursor y Antigravity AI.
-
-**Aprendí:**  
-Los clientes MCP en Go (como Antigravity) envían `POST` directo a `/sse` sin `session_id`, mientras que Claude Desktop sigue el flujo de dos canales hacia `/messages?session_id=...`. Responder en ambos canales garantiza compatibilidad universal.
-
-**Resultado:**  
-Plataforma completa operativa en `:28945`, con persistencia SQLite, Scale-to-Zero (0 MB RAM en reposo), Home (README) dinámico y catálogo de 20 herramientas MCP probadas exitosamente desde Antigravity y Claude.
-
-**Siguiente:**  
-Fase 4: Bitácora interactiva tipo Notebook Markdown por proyecto y carga masiva de proyectos desde Excel."""
-
-        pj65_entry = """**Proyecto:**  
-PJ-65 (Retail Dynamic Pricing & Automated Valuation System)
-
-**Actividades:**  
-Integración y despliegue de DVC y MLflow en Docker sobre Raspberry Pi vía Tailscale, versionado del dataset en Fase 1 y registro de modelos en Fase 2.
-
-**Herramientas/IA:**  
-DVC (dvc-ssh), MLflow, Docker, Tailscale, Streamlit, LightGBM, Python, Jupyter y Antigravity AI.
-
-**Aprendí:**  
-DVC desacopla datos pesados de Git usando punteros `.dvc` (hashes MD5) hacia almacenamiento remoto, y MLflow gestiona experimentos requiriendo configuración CORS para accesos remotos vía FastAPI.
-
-**Resultado:**  
-Dataset de 1M de filas (38.75 MB) respaldado en la Raspberry Pi con Dashboard interactivo en Streamlit, y 2 modelos LightGBM con métricas y SHAP registrados en MLflow.
-
-**Siguiente:**  
-Fase 3: Implementar reglas de salvaguarda financiera (costo + CAC + margen mínimo) y schemas Pydantic v2 en la API de inferencia."""
-
-        now_str = "2026-10-17 19:30:00"
-
-        if pj67_id:
-            cursor.execute("""
-                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (pj67_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
-
-        if pj65_id:
-            cursor.execute("""
-                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (pj65_id, "Integración DVC + MLflow & Modelado Fase 2", pj65_entry, "2026-10-17", 1, now_str, now_str))
-
-        if pj00_id:
-            cursor.execute("""
-                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (pj00_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
 
         # Columnas estándar
         columns = [("Por Hacer", 1), ("En Progreso", 2), ("En Revisión", 3), ("Terminado", 4)]
@@ -442,6 +371,77 @@ graph TD
             INSERT INTO project_updates (project_id, sprint_id, version_tag, title, content_markdown)
             VALUES (?, ?, ?, ?, ?)
         """, (p0_id, sprint_id, "v0.1.0-tutorial", "Lanzamiento del Proyecto Tutorial", update_md))
+
+    def _seed_bitacora_entries(self, cursor: sqlite3.Cursor):
+        cursor.execute("SELECT id, name FROM projects")
+        projects = {row["name"]: row["id"] for row in cursor.fetchall()}
+
+        pj67_id = None
+        pj65_id = None
+        pj00_id = None
+        for name, pid in projects.items():
+            if "PJ-67" in name or "Huggins" in name:
+                pj67_id = pid
+            elif "PJ-65" in name:
+                pj65_id = pid
+            elif "PJ-00" in name:
+                pj00_id = pid
+
+        pj67_entry = """**Proyecto:**  
+PJ-67 (Huggins — AI-Native Agile Management Platform & MCP Server)
+
+**Actividades:**  
+Integración y despliegue de servidor MCP SSE nativo en Docker sobre Raspberry Pi vía Tailscale, Product Backlog en el tablero, Home (README) interactivo y soporte de Scale-to-Zero con Sablier y Traefik.
+
+**Herramientas/IA:**  
+FastAPI, SQLite (modo WAL), Bootstrap 5, Vanilla JS, Marked.js, Docker, Traefik, Sablier, Claude Desktop, Cursor y Antigravity AI.
+
+**Aprendí:**  
+Los clientes MCP en Go (como Antigravity) envían `POST` directo a `/sse` sin `session_id`, mientras que Claude Desktop sigue el flujo de dos canales hacia `/messages?session_id=...`. Responder en ambos canales garantiza compatibilidad universal.
+
+**Resultado:**  
+Plataforma completa operativa en `:28945`, con persistencia SQLite, Scale-to-Zero (0 MB RAM en reposo), Home (README) dinámico y catálogo de 20 herramientas MCP probadas exitosamente desde Antigravity y Claude.
+
+**Siguiente:**  
+Fase 4: Bitácora interactiva tipo Notebook Markdown por proyecto y carga masiva de proyectos desde Excel."""
+
+        pj65_entry = """**Proyecto:**  
+PJ-65 (Retail Dynamic Pricing & Automated Valuation System)
+
+**Actividades:**  
+Integración y despliegue de DVC y MLflow en Docker sobre Raspberry Pi vía Tailscale, versionado del dataset en Fase 1 y registro de modelos en Fase 2.
+
+**Herramientas/IA:**  
+DVC (dvc-ssh), MLflow, Docker, Tailscale, Streamlit, LightGBM, Python, Jupyter y Antigravity AI.
+
+**Aprendí:**  
+DVC desacopla datos pesados de Git usando punteros `.dvc` (hashes MD5) hacia almacenamiento remoto, y MLflow gestiona experimentos requiriendo configuración CORS para accesos remotos vía FastAPI.
+
+**Resultado:**  
+Dataset de 1M de filas (38.75 MB) respaldado en la Raspberry Pi con Dashboard interactivo en Streamlit, y 2 modelos LightGBM con métricas y SHAP registrados en MLflow.
+
+**Siguiente:**  
+Fase 3: Implementar reglas de salvaguarda financiera (costo + CAC + margen mínimo) y schemas Pydantic v2 en la API de inferencia."""
+
+        now_str = "2026-10-17 19:30:00"
+
+        if pj67_id:
+            cursor.execute("""
+                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (pj67_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
+
+        if pj65_id:
+            cursor.execute("""
+                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (pj65_id, "Integración DVC + MLflow & Modelado Fase 2", pj65_entry, "2026-10-17", 1, now_str, now_str))
+
+        if pj00_id:
+            cursor.execute("""
+                INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (pj00_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
 
     def _seed_initial_data(self, cursor: sqlite3.Cursor):
         # Proyecto 1: PJ-67
