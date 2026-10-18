@@ -206,6 +206,7 @@ function setupEventListeners() {
   // Setup Modals
   setupTaskModalActions();
   setupReleaseModalActions();
+  setupBitacoraActions();
 
   // Botón refrescar métricas
   document.getElementById('btn-refresh-metrics')?.addEventListener('click', () => {
@@ -271,6 +272,7 @@ async function switchTab(tabId) {
     'board': 'view-board',
     'work-items': 'view-work-items',
     'changelog': 'view-changelog',
+    'bitacora': 'view-bitacora',
     'metrics': 'view-metrics'
   };
 
@@ -298,6 +300,8 @@ async function refreshActiveView() {
     await renderWorkItems();
   } else if (currentTab === 'changelog') {
     await renderChangelog();
+  } else if (currentTab === 'bitacora') {
+    await renderBitacora();
   } else if (currentTab === 'metrics') {
     await renderMetrics();
   }
@@ -946,6 +950,270 @@ function setupReleaseModalActions() {
       alert('Error de conexión: ' + err.message);
     }
   });
+}
+
+// ==========================================
+// 3.4. Bitácora del Proyecto (Markdown Notebook)
+// ==========================================
+
+const DEFAULT_BITACORA_TEMPLATE = `**Proyecto:**  
+PJ-XX (Nombre del Proyecto)
+
+**Actividades:**  
+[Descripción de actividades realizadas]
+
+**Herramientas/IA:**  
+[Herramientas, librerías, modelos o IA usadas]
+
+**Aprendí:**  
+[Lecciones técnicas o metodológicas aprendidas]
+
+**Resultado:**  
+[Métricas, entregables o estado alcanzado]
+
+**Siguiente:**  
+[Siguientes pasos o fases]`;
+
+function setupBitacoraActions() {
+  const btnAdd = document.getElementById('btn-add-bitacora-entry');
+  const cardNew = document.getElementById('new-bitacora-entry-card');
+  const btnClose = document.getElementById('btn-close-new-bitacora');
+  const btnCancel = document.getElementById('btn-cancel-new-bitacora');
+  const btnSave = document.getElementById('btn-save-new-bitacora');
+  const inputTitle = document.getElementById('new-bitacora-title');
+  const inputDate = document.getElementById('new-bitacora-date');
+  const textareaContent = document.getElementById('new-bitacora-content');
+
+  const closeForm = () => {
+    if (cardNew) cardNew.style.display = 'none';
+  };
+
+  btnAdd?.addEventListener('click', () => {
+    if (!cardNew) return;
+    const isVisible = cardNew.style.display !== 'none';
+    if (isVisible) {
+      closeForm();
+    } else {
+      cardNew.style.display = 'block';
+      if (inputDate && !inputDate.value) {
+        inputDate.value = new Date().toISOString().split('T')[0];
+      }
+      if (textareaContent && !textareaContent.value.trim()) {
+        const projName = currentProjectData ? `${currentProjectData.id ? 'PJ-' + currentProjectData.id : ''} (${currentProjectData.name})` : 'PJ-XX';
+        textareaContent.value = DEFAULT_BITACORA_TEMPLATE.replace('PJ-XX (Nombre del Proyecto)', projName);
+      }
+      inputTitle?.focus();
+    }
+  });
+
+  btnClose?.addEventListener('click', closeForm);
+  btnCancel?.addEventListener('click', closeForm);
+
+  btnSave?.addEventListener('click', async () => {
+    if (!currentProjectId) return;
+    const title = inputTitle?.value.trim() || 'Entrada de Bitácora';
+    const entryDate = inputDate?.value || new Date().toISOString().split('T')[0];
+    const content = textareaContent?.value.trim();
+
+    if (!content) {
+      alert('El contenido no puede estar vacío.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/projects/${currentProjectId}/bitacora`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title,
+          entry_date: entryDate,
+          content_markdown: content
+        })
+      });
+
+      if (res.ok) {
+        if (inputTitle) inputTitle.value = '';
+        if (textareaContent) textareaContent.value = '';
+        closeForm();
+        await renderBitacora();
+      } else {
+        const err = await res.json();
+        alert('Error al guardar la entrada: ' + (err.detail || 'Error desconocido'));
+      }
+    } catch (err) {
+      console.error('Error saving bitacora entry:', err);
+      alert('Error de conexión al guardar entrada.');
+    }
+  });
+}
+
+async function renderBitacora() {
+  if (!currentProjectId) return;
+  const headerTitle = document.getElementById('bitacora-header-title');
+  if (headerTitle && currentProjectData) {
+    headerTitle.textContent = `Bitácora — ${currentProjectData.name}`;
+  }
+
+  const listEl = document.getElementById('bitacora-entries-list');
+  if (!listEl) return;
+
+  try {
+    const res = await fetch(`/api/projects/${currentProjectId}/bitacora`);
+    if (!res.ok) throw new Error('Error al cargar bitácora');
+    const entries = await res.json();
+
+    if (entries.length === 0) {
+      listEl.innerHTML = `
+        <div class="text-center py-5 text-muted border rounded-3 bg-body-tertiary">
+          <i class="bi bi-journal-text fs-1 d-block mb-2 text-secondary opacity-50"></i>
+          <p class="mb-2 fw-medium">No hay entradas en la bitácora todavía.</p>
+          <p class="small text-secondary mb-0">Haz clic en <strong>+ Nueva Entrada</strong> para registrar una entrada con formato de notebook.</p>
+        </div>`;
+      return;
+    }
+
+    listEl.innerHTML = '';
+    entries.forEach((entry, idx) => {
+      const card = document.createElement('div');
+      card.className = 'bitacora-block card border shadow-sm';
+      card.id = `bitacora-entry-${entry.id}`;
+
+      const dateFormatted = entry.entry_date || (entry.created_at ? entry.created_at.split('T')[0] : '');
+
+      card.innerHTML = `
+        <div class="bitacora-block-header card-header d-flex justify-content-between align-items-center py-2 px-3 bg-body-secondary bg-opacity-50">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 font-monospace">
+              #${entries.length - idx} &bull; ${escapeHtml(dateFormatted)}
+            </span>
+            <span class="fw-bold fs-6 text-body entry-view-title" id="entry-title-view-${entry.id}">
+              ${escapeHtml(entry.title)}
+            </span>
+            <input type="text" class="form-control form-control-sm entry-edit-title" id="entry-title-edit-${entry.id}" value="${escapeHtml(entry.title)}" style="display:none; max-width: 320px;">
+            <input type="date" class="form-control form-control-sm entry-edit-date" id="entry-date-edit-${entry.id}" value="${escapeHtml(dateFormatted)}" style="display:none; max-width: 150px;">
+          </div>
+          <div class="d-flex align-items-center gap-1">
+            <button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-edit-entry" id="btn-edit-${entry.id}" title="Editar bloque">
+              <i class="bi bi-pencil"></i> <span class="d-none d-sm-inline">Editar</span>
+            </button>
+            <button class="btn btn-sm btn-success py-0 px-2 btn-save-entry" id="btn-save-${entry.id}" style="display:none;" title="Guardar cambios">
+              <i class="bi bi-check-lg"></i> <span class="d-none d-sm-inline">Guardar</span>
+            </button>
+            <button class="btn btn-sm btn-secondary py-0 px-2 btn-cancel-entry" id="btn-cancel-${entry.id}" style="display:none;" title="Cancelar edición">
+              <i class="bi bi-x-lg"></i> <span class="d-none d-sm-inline">Cancelar</span>
+            </button>
+            <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-delete-entry" id="btn-delete-${entry.id}" title="Eliminar entrada">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <div class="bitacora-block-body markdown-rendered" id="entry-view-content-${entry.id}">
+            ${(typeof marked !== 'undefined' && marked.parse) ? marked.parse(entry.content_markdown || '') : `<pre>${escapeHtml(entry.content_markdown || '')}</pre>`}
+          </div>
+          <div class="entry-editor-container" id="entry-edit-container-${entry.id}" style="display:none;">
+            <textarea class="form-control font-monospace" id="entry-textarea-${entry.id}" rows="12">${escapeHtml(entry.content_markdown || '')}</textarea>
+          </div>
+        </div>
+      `;
+
+      listEl.appendChild(card);
+
+      const btnEdit = card.querySelector(`#btn-edit-${entry.id}`);
+      const btnSave = card.querySelector(`#btn-save-${entry.id}`);
+      const btnCancel = card.querySelector(`#btn-cancel-${entry.id}`);
+      const btnDelete = card.querySelector(`#btn-delete-${entry.id}`);
+      const viewTitle = card.querySelector(`#entry-title-view-${entry.id}`);
+      const editTitle = card.querySelector(`#entry-title-edit-${entry.id}`);
+      const editDate = card.querySelector(`#entry-date-edit-${entry.id}`);
+      const viewContent = card.querySelector(`#entry-view-content-${entry.id}`);
+      const editContainer = card.querySelector(`#entry-edit-container-${entry.id}`);
+      const textarea = card.querySelector(`#entry-textarea-${entry.id}`);
+
+      const toggleEditMode = (editing) => {
+        btnEdit.style.display = editing ? 'none' : 'inline-block';
+        btnSave.style.display = editing ? 'inline-block' : 'none';
+        btnCancel.style.display = editing ? 'inline-block' : 'none';
+        viewTitle.style.display = editing ? 'none' : 'inline-block';
+        editTitle.style.display = editing ? 'inline-block' : 'none';
+        editDate.style.display = editing ? 'inline-block' : 'none';
+        viewContent.style.display = editing ? 'none' : 'block';
+        editContainer.style.display = editing ? 'block' : 'none';
+      };
+
+      btnEdit.addEventListener('click', () => {
+        toggleEditMode(true);
+        textarea.focus();
+      });
+
+      btnCancel.addEventListener('click', () => {
+        editTitle.value = entry.title;
+        editDate.value = dateFormatted;
+        textarea.value = entry.content_markdown || '';
+        toggleEditMode(false);
+      });
+
+      btnSave.addEventListener('click', async () => {
+        const newTitle = editTitle.value.trim() || 'Entrada de Bitácora';
+        const newDate = editDate.value || dateFormatted;
+        const newContent = textarea.value.trim();
+
+        if (!newContent) {
+          alert('El contenido no puede estar vacío.');
+          return;
+        }
+
+        try {
+          const updateRes = await fetch(`/api/bitacora/${entry.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: newTitle,
+              entry_date: newDate,
+              content_markdown: newContent
+            })
+          });
+
+          if (updateRes.ok) {
+            entry.title = newTitle;
+            entry.entry_date = newDate;
+            entry.content_markdown = newContent;
+
+            viewTitle.textContent = newTitle;
+            viewContent.innerHTML = (typeof marked !== 'undefined' && marked.parse)
+              ? marked.parse(newContent)
+              : `<pre>${escapeHtml(newContent)}</pre>`;
+            toggleEditMode(false);
+          } else {
+            const err = await updateRes.json();
+            alert('Error al actualizar entrada: ' + (err.detail || 'Error desconocido'));
+          }
+        } catch (err) {
+          console.error('Error updating bitacora entry:', err);
+          alert('Error de conexión al actualizar entrada.');
+        }
+      });
+
+      btnDelete.addEventListener('click', async () => {
+        if (!confirm(`¿Eliminar la entrada "${entry.title}"?`)) return;
+        try {
+          const delRes = await fetch(`/api/bitacora/${entry.id}`, { method: 'DELETE' });
+          if (delRes.ok) {
+            await renderBitacora();
+          } else {
+            alert('Error al eliminar la entrada.');
+          }
+        } catch (err) {
+          console.error('Error deleting entry:', err);
+          alert('Error de conexión al eliminar entrada.');
+        }
+      });
+    });
+
+  } catch (err) {
+    console.error('Error rendering bitacora:', err);
+    listEl.innerHTML = `<div class="alert alert-danger">Error al cargar la bitácora: ${escapeHtml(err.message)}</div>`;
+  }
 }
 
 function escapeHtml(str) {

@@ -416,6 +416,69 @@ MCP_TOOLS = [
                 }
             }
         }
+    },
+    {
+        "name": "list_bitacora_entries",
+        "description": "Consulta todas las entradas de la bitácora estilo notebook de un proyecto.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "integer",
+                    "description": "ID del proyecto (por defecto 1)",
+                    "default": 1
+                }
+            }
+        }
+    },
+    {
+        "name": "add_bitacora_entry",
+        "description": "Añade una nueva entrada o bloque a la bitácora del proyecto en Markdown.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["content_markdown"],
+            "properties": {
+                "project_id": {
+                    "type": "integer",
+                    "description": "ID del proyecto (por defecto 1)",
+                    "default": 1
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Título o encabezado de la entrada"
+                },
+                "content_markdown": {
+                    "type": "string",
+                    "description": "Contenido de la entrada en Markdown (actividades, herramientas, aprendizajes, etc.)"
+                },
+                "entry_date": {
+                    "type": "string",
+                    "description": "Fecha de la entrada en formato YYYY-MM-DD (por defecto hoy)"
+                }
+            }
+        }
+    },
+    {
+        "name": "update_bitacora_entry",
+        "description": "Modifica una entrada existente de la bitácora por su ID.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["entry_id", "content_markdown"],
+            "properties": {
+                "entry_id": {
+                    "type": "integer",
+                    "description": "ID de la entrada de bitácora a modificar"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Nuevo título opcional"
+                },
+                "content_markdown": {
+                    "type": "string",
+                    "description": "Nuevo contenido Markdown de la entrada"
+                }
+            }
+        }
     }
 ]
 
@@ -644,6 +707,28 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 return f"README del proyecto #{pid} actualizado exitosamente."
             else:
                 return f"Error: No se pudo actualizar el README del proyecto #{pid}."
+
+        elif tool_name == "list_bitacora_entries":
+            pid = arguments.get("project_id", 1)
+            entries = db.list_bitacora_entries(pid)
+            return json.dumps(entries, indent=2, ensure_ascii=False)
+
+        elif tool_name == "add_bitacora_entry":
+            pid = arguments.get("project_id", 1)
+            content = arguments.get("content_markdown", "")
+            title = arguments.get("title", "")
+            date_str = arguments.get("entry_date", "")
+            entry = db.create_bitacora_entry(pid, content, title, date_str)
+            return json.dumps({"status": "created", "entry": entry}, indent=2, ensure_ascii=False)
+
+        elif tool_name == "update_bitacora_entry":
+            eid = arguments["entry_id"]
+            content = arguments.get("content_markdown", "")
+            title = arguments.get("title")
+            entry = db.update_bitacora_entry(eid, content, title)
+            if entry:
+                return json.dumps({"status": "updated", "entry": entry}, indent=2, ensure_ascii=False)
+            return f"Error: No se encontró la entrada de bitácora #{eid}."
 
         else:
             return f"Error: Herramienta desconocida '{tool_name}'"

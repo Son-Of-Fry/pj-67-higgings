@@ -8,7 +8,8 @@ from src.models import (
     TaskResponse, TaskCreate, TaskUpdate, TaskMove,
     DocResponse, DocCreate, DocUpdate, DocBase,
     UpdateLogResponse, UpdateLogCreate, UpdateLogBase,
-    ProjectMetricsResponse
+    ProjectMetricsResponse,
+    BitacoraEntryResponse, BitacoraEntryCreate, BitacoraEntryUpdate
 )
 
 router = APIRouter(prefix="/api", tags=["Kanban & Scrum API"])
@@ -239,3 +240,39 @@ def get_project_metrics(project_id: int):
     if not metrics:
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     return metrics
+
+# ==========================================
+# Bitácora Interactiva (Notebook Markdown)
+# ==========================================
+
+@router.get("/projects/{project_id}/bitacora", response_model=List[BitacoraEntryResponse])
+def list_project_bitacora(project_id: int):
+    return db.list_bitacora_entries(project_id)
+
+@router.post("/projects/{project_id}/bitacora", response_model=BitacoraEntryResponse)
+def create_project_bitacora(project_id: int, payload: BitacoraEntryCreate):
+    return db.create_bitacora_entry(
+        project_id=project_id,
+        content_markdown=payload.content_markdown,
+        title=payload.title or "",
+        entry_date=payload.entry_date or ""
+    )
+
+@router.put("/bitacora/{entry_id}", response_model=BitacoraEntryResponse)
+def update_bitacora_entry(entry_id: int, payload: BitacoraEntryUpdate):
+    entry = db.update_bitacora_entry(
+        entry_id=entry_id,
+        content_markdown=payload.content_markdown,
+        title=payload.title,
+        entry_date=payload.entry_date
+    )
+    if not entry:
+        raise HTTPException(status_code=404, detail="Entrada de bitácora no encontrada")
+    return entry
+
+@router.delete("/bitacora/{entry_id}")
+def delete_bitacora_entry(entry_id: int):
+    success = db.delete_bitacora_entry(entry_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Entrada de bitácora no encontrada")
+    return {"success": True, "message": f"Entrada {entry_id} eliminada"}

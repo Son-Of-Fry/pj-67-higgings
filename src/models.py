@@ -170,3 +170,24 @@ class ProjectMetricsResponse(BaseModel):
     tasks_by_status: Dict[str, int] = {}
     tasks_by_assignee: Dict[str, Dict[str, Any]] = {}
     tasks_by_tag: Dict[str, int]
+
+# Modelos de Bitácora (Notebook Markdown)
+class BitacoraEntryBase(BaseModel):
+    title: Optional[str] = Field("", max_length=200)
+    content_markdown: str = Field(..., min_length=1)
+    entry_date: Optional[str] = ""
+
+class BitacoraEntryCreate(BitacoraEntryBase):
+    pass
+
+class BitacoraEntryUpdate(BaseModel):
+    title: Optional[str] = None
+    content_markdown: Optional[str] = None
+    entry_date: Optional[str] = None
+
+class BitacoraEntryResponse(BitacoraEntryBase):
+    id: int
+    project_id: int
+    position: int = 0
+    created_at: str
+    updated_at: str
