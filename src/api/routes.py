@@ -55,6 +55,13 @@ def update_project(project_id: int, payload: ProjectUpdate):
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     return p
 
+@router.delete("/projects/{project_id}")
+def delete_project(project_id: int):
+    ok = db.delete_project(project_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    return {"status": "success", "message": f"Proyecto {project_id} eliminado exitosamente"}
+
 @router.get("/projects/{project_id}/readme")
 def get_project_readme(project_id: int):
     p = db.get_project(project_id)

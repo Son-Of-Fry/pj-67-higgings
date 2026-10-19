@@ -656,6 +656,19 @@ Bienvenido a la Wiki de documentación interna del proyecto.
 
         return self.get_project(project_id)
 
+    def delete_project(self, project_id: int) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM tasks WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM columns WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM sprints WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM documents WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM bitacora_entries WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM project_updates WHERE project_id = ?", (project_id,))
+            cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
     def get_project_readme(self, project_id: int) -> str:
         p = self.get_project(project_id)
         return p.get("readme_markdown") or "" if p else ""
