@@ -7,6 +7,11 @@ class ProjectBase(BaseModel):
     description: Optional[str] = Field("", max_length=500)
     github_url: Optional[str] = Field("", description="URL directa al repositorio GitHub")
     readme_markdown: Optional[str] = Field("", description="Documento Home/README en Markdown")
+    difficulty: Optional[int] = Field(3, description="Dificultad del proyecto de 1 a 5")
+    theme: Optional[str] = Field("", description="Tema del proyecto (ej: Riesgo de Crédito)")
+    axis: Optional[str] = Field("Abierto", description="Eje del proyecto")
+    status: Optional[str] = Field("Planeación", description="Estado general (Planeación, En Curso, Terminado, Pausado)")
+    extra_data: Optional[str] = Field("{}", description="Metadatos adicionales en JSON")
 
 class ProjectCreate(ProjectBase):
     pass
@@ -16,6 +21,11 @@ class ProjectUpdate(BaseModel):
     description: Optional[str] = None
     github_url: Optional[str] = None
     readme_markdown: Optional[str] = None
+    difficulty: Optional[int] = None
+    theme: Optional[str] = None
+    axis: Optional[str] = None
+    status: Optional[str] = None
+    extra_data: Optional[str] = None
 
 class ProjectReadmeUpdate(BaseModel):
     readme_markdown: str
@@ -25,6 +35,9 @@ class ProjectResponse(ProjectBase):
     created_at: str
     active_sprint_name: Optional[str] = None
     total_tasks: int = 0
+    completed_tasks: int = 0
+    progress_percent: int = 0
+    last_bitacora_date: Optional[str] = None
     total_docs: int = 0
 
 # Modelos de Sprints (Scrum)

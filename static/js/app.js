@@ -156,15 +156,9 @@ function setupEventListeners() {
     }
   });
 
-  // Clic en el título del proyecto para editar Nombre y GitHub URL
-  document.getElementById('current-project-title')?.addEventListener('click', async () => {
-    const currentName = currentProjectData?.name || '';
-    const currentGh = currentProjectData?.github_url || '';
-    const newName = prompt('Editar nombre del proyecto:', currentName);
-    if (!newName) return;
-    const newGh = prompt('Editar URL del repositorio GitHub:', currentGh);
-    if (newGh === null) return;
-    await saveProjectDetails(newName, newGh, currentProjectData?.description || '');
+  // Clic en el título del proyecto para abrir modal de edición completo
+  document.getElementById('current-project-title')?.addEventListener('click', () => {
+    openEditProjectModal(currentProjectData);
   });
 
   // Clic en enlace GitHub: si no tiene URL, solicitar ingresarla
@@ -207,6 +201,7 @@ function setupEventListeners() {
   setupTaskModalActions();
   setupReleaseModalActions();
   setupBitacoraActions();
+  setupPortfolioActions();
 
   // Botón refrescar métricas
   document.getElementById('btn-refresh-metrics')?.addEventListener('click', () => {
@@ -269,10 +264,11 @@ async function switchTab(tabId) {
   currentTab = tabId;
   const viewMap = {
     'home': 'view-home',
+    'portfolio': 'view-portfolio',
+    'bitacora': 'view-bitacora',
     'board': 'view-board',
     'work-items': 'view-work-items',
     'changelog': 'view-changelog',
-    'bitacora': 'view-bitacora',
     'metrics': 'view-metrics'
   };
 
@@ -294,6 +290,8 @@ async function refreshActiveView() {
 
   if (currentTab === 'home') {
     await renderHomeReadme();
+  } else if (currentTab === 'portfolio') {
+    await renderPortfolio();
   } else if (currentTab === 'board') {
     await renderBoard();
   } else if (currentTab === 'work-items') {
@@ -1214,6 +1212,289 @@ async function renderBitacora() {
     console.error('Error rendering bitacora:', err);
     listEl.innerHTML = `<div class="alert alert-danger">Error al cargar la bitácora: ${escapeHtml(err.message)}</div>`;
   }
+}
+
+// ==========================================
+// 3.5. Portafolio de Proyectos (Vista Hub)
+// ==========================================
+
+let allPortfolioProjects = [];
+
+function setupPortfolioActions() {
+  const searchInput = document.getElementById('portfolio-filter-search');
+  const themeSelect = document.getElementById('portfolio-filter-theme');
+  const diffSelect = document.getElementById('portfolio-filter-difficulty');
+  const statusSelect = document.getElementById('portfolio-filter-status');
+  const btnReset = document.getElementById('btn-portfolio-reset-filters');
+  const btnNewProj = document.getElementById('btn-portfolio-new-project');
+
+  searchInput?.addEventListener('input', applyPortfolioFilters);
+  themeSelect?.addEventListener('change', applyPortfolioFilters);
+  diffSelect?.addEventListener('change', applyPortfolioFilters);
+  statusSelect?.addEventListener('change', applyPortfolioFilters);
+
+  btnReset?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    if (themeSelect) themeSelect.value = '';
+    if (diffSelect) diffSelect.value = '';
+    if (statusSelect) statusSelect.value = '';
+    renderPortfolioRows(allPortfolioProjects);
+  });
+
+  btnNewProj?.addEventListener('click', async () => {
+    const name = prompt('Nombre del nuevo proyecto (ej. PJ-68 Machine Learning):');
+    if (!name || !name.trim()) return;
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() })
+      });
+      if (res.ok) {
+        await loadProjects();
+        await renderPortfolio();
+      }
+    } catch (e) {
+      console.error('Error creating project:', e);
+    }
+  });
+
+  // Guardar desde el modal de edición de proyecto
+  document.getElementById('btn-modal-save-proj')?.addEventListener('click', async () => {
+    const idInput = document.getElementById('modal-proj-id');
+    const targetId = idInput?.value ? parseInt(idInput.value) : currentProjectId;
+    if (!targetId) return;
+
+    const name = document.getElementById('modal-proj-name')?.value.trim();
+    const theme = document.getElementById('modal-proj-theme')?.value.trim();
+    const axis = document.getElementById('modal-proj-axis')?.value.trim();
+    const difficulty = parseInt(document.getElementById('modal-proj-difficulty')?.value || '3');
+    const status = document.getElementById('modal-proj-status')?.value || 'Planeación';
+    const github_url = document.getElementById('modal-proj-github')?.value.trim();
+    const description = document.getElementById('modal-proj-desc')?.value.trim();
+
+    if (!name) {
+      alert('El nombre del proyecto es obligatorio.');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/projects/${targetId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          theme,
+          axis,
+          difficulty,
+          status,
+          github_url,
+          description
+        })
+      });
+
+      if (res.ok) {
+        if (projectSettingsModalInstance) projectSettingsModalInstance.hide();
+        await loadProjects();
+        if (targetId === currentProjectId) {
+          await switchProject(targetId);
+        }
+        if (currentTab === 'portfolio') {
+          await renderPortfolio();
+        }
+      } else {
+        const err = await res.json();
+        alert('Error al guardar proyecto: ' + (err.detail || 'Error desconocido'));
+      }
+    } catch (err) {
+      console.error('Error saving project:', err);
+      alert('Error de conexión al guardar proyecto.');
+    }
+  });
+}
+
+function openEditProjectModal(project) {
+  const p = project || currentProjectData;
+  if (!p) return;
+
+  const idInput = document.getElementById('modal-proj-id');
+  if (idInput) idInput.value = p.id;
+
+  const nameInput = document.getElementById('modal-proj-name');
+  if (nameInput) nameInput.value = p.name || '';
+
+  const themeInput = document.getElementById('modal-proj-theme');
+  if (themeInput) themeInput.value = p.theme || '';
+
+  const axisInput = document.getElementById('modal-proj-axis');
+  if (axisInput) axisInput.value = p.axis || 'Abierto';
+
+  const diffInput = document.getElementById('modal-proj-difficulty');
+  if (diffInput) diffInput.value = p.difficulty || 3;
+
+  const statusInput = document.getElementById('modal-proj-status');
+  if (statusInput) statusInput.value = p.status || 'Planeación';
+
+  const githubInput = document.getElementById('modal-proj-github');
+  if (githubInput) githubInput.value = p.github_url || '';
+
+  const descInput = document.getElementById('modal-proj-desc');
+  if (descInput) descInput.value = p.description || '';
+
+  if (projectSettingsModalInstance) projectSettingsModalInstance.show();
+}
+
+async function renderPortfolio() {
+  try {
+    const res = await fetch('/api/projects');
+    if (!res.ok) throw new Error('Error al obtener lista de proyectos');
+    allPortfolioProjects = await res.json();
+
+    const countBadge = document.getElementById('portfolio-total-count');
+    if (countBadge) countBadge.textContent = `${allPortfolioProjects.length} proyectos`;
+
+    // Poblar dropdown de temas únicos
+    const themeSelect = document.getElementById('portfolio-filter-theme');
+    if (themeSelect) {
+      const currentSelectedTheme = themeSelect.value;
+      const themes = Array.from(new Set(allPortfolioProjects.map(p => p.theme).filter(Boolean))).sort();
+      themeSelect.innerHTML = '<option value="">Todos los Temas</option>';
+      themes.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        themeSelect.appendChild(opt);
+      });
+      themeSelect.value = currentSelectedTheme;
+    }
+
+    applyPortfolioFilters();
+  } catch (err) {
+    console.error('Error in renderPortfolio:', err);
+  }
+}
+
+function applyPortfolioFilters() {
+  const search = (document.getElementById('portfolio-filter-search')?.value || '').toLowerCase().trim();
+  const theme = document.getElementById('portfolio-filter-theme')?.value || '';
+  const diff = document.getElementById('portfolio-filter-difficulty')?.value || '';
+  const status = document.getElementById('portfolio-filter-status')?.value || '';
+
+  let filtered = allPortfolioProjects.filter(p => {
+    if (search) {
+      const matchName = (p.name || '').toLowerCase().includes(search);
+      const matchDesc = (p.description || '').toLowerCase().includes(search);
+      const matchTheme = (p.theme || '').toLowerCase().includes(search);
+      const matchId = `pj-${p.id}`.includes(search);
+      if (!matchName && !matchDesc && !matchTheme && !matchId) return false;
+    }
+    if (theme && p.theme !== theme) return false;
+    if (diff && p.difficulty !== parseInt(diff)) return false;
+    if (status && p.status !== status) return false;
+    return true;
+  });
+
+  renderPortfolioRows(filtered);
+}
+
+function renderPortfolioRows(projects) {
+  const tbody = document.getElementById('portfolio-table-body');
+  if (!tbody) return;
+
+  if (projects.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="text-center py-5 text-muted">
+          No se encontraron proyectos con los filtros aplicados.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = '';
+  projects.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.className = 'portfolio-row-clickable';
+
+    const starCount = Math.max(1, Math.min(5, p.difficulty || 3));
+    const starsStr = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+
+    let statusClass = 'bg-secondary-subtle text-secondary';
+    if (p.status === 'Terminado') statusClass = 'bg-success-subtle text-success border border-success-subtle';
+    else if (p.status === 'En Curso') statusClass = 'bg-primary-subtle text-primary border border-primary-subtle';
+    else if (p.status === 'Planeación') statusClass = 'bg-warning-subtle text-warning border border-warning-subtle';
+
+    const pct = p.progress_percent || 0;
+    const completed = p.completed_tasks || 0;
+    const total = p.total_tasks || 0;
+    const bitacoraDate = p.last_bitacora_date || '—';
+
+    tr.innerHTML = `
+      <td>
+        <span class="badge bg-body-secondary text-body border font-monospace">PJ-${p.id}</span>
+      </td>
+      <td>
+        <div class="fw-bold text-body project-link-title" style="cursor: pointer;" title="Ir a este proyecto">
+          ${escapeHtml(p.name)}
+        </div>
+        ${p.description ? `<div class="small text-muted text-truncate" style="max-width: 320px;" title="${escapeHtml(p.description)}">${escapeHtml(p.description)}</div>` : ''}
+      </td>
+      <td>
+        ${p.theme ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-1">${escapeHtml(p.theme)}</span>` : '<span class="text-muted small">—</span>'}
+        ${p.axis ? `<span class="badge bg-light text-secondary border small">${escapeHtml(p.axis)}</span>` : ''}
+      </td>
+      <td>
+        <span class="portfolio-stars" title="${starCount} de 5 estrellas">${starsStr}</span>
+      </td>
+      <td>
+        <span class="badge ${statusClass}">${escapeHtml(p.status || 'Planeación')}</span>
+      </td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <div class="progress flex-grow-1 portfolio-progress-bar" style="background: var(--border-subtle); height: 6px;">
+            <div class="progress-bar ${pct === 100 ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${pct}%"></div>
+          </div>
+          <span class="small text-muted font-monospace" style="min-width: 45px;">${completed}/${total}</span>
+        </div>
+      </td>
+      <td>
+        <span class="small font-monospace ${p.last_bitacora_date ? 'text-primary fw-medium' : 'text-muted'}">${escapeHtml(bitacoraDate)}</span>
+      </td>
+      <td class="text-end">
+        <div class="d-flex justify-content-end gap-1">
+          <button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-portfolio-edit" title="Editar proyecto">
+            Editar
+          </button>
+          <button class="btn btn-sm btn-outline-primary py-0 px-2 btn-portfolio-open" title="Abrir tablero">
+            Abrir
+          </button>
+        </div>
+      </td>
+    `;
+
+    tr.querySelector('.btn-portfolio-edit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditProjectModal(p);
+    });
+
+    const openProject = async () => {
+      document.getElementById('project-selector').value = p.id;
+      await switchProject(p.id);
+      document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.jira-tab[data-tab="board"]')?.classList.add('active');
+      switchTab('board');
+    };
+
+    tr.querySelector('.btn-portfolio-open')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openProject();
+    });
+
+    tr.querySelector('.project-link-title')?.addEventListener('click', openProject);
+
+    tbody.appendChild(tr);
+  });
 }
 
 function escapeHtml(str) {

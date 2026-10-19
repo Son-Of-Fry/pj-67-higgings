@@ -31,7 +31,13 @@ def create_project(payload: ProjectCreate):
     return db.create_project(
         name=payload.name,
         description=payload.description or "",
-        github_url=payload.github_url or ""
+        github_url=payload.github_url or "",
+        readme_markdown=payload.readme_markdown or "",
+        difficulty=payload.difficulty or 3,
+        theme=payload.theme or "",
+        axis=payload.axis or "Abierto",
+        status=payload.status or "Planeación",
+        extra_data=payload.extra_data or "{}"
     )
 
 @router.get("/projects/{project_id}", response_model=ProjectResponse)

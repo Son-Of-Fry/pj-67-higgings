@@ -70,6 +70,7 @@
     <!-- Pestañas de Navegación estilo Jira (Sin iconos / Emojis) -->
     <nav class="jira-nav-tabs">
       <div class="jira-tab active" data-tab="home">Home (Readme)</div>
+      <div class="jira-tab" data-tab="portfolio">Portafolio</div>
       <div class="jira-tab" data-tab="bitacora">Bitácora</div>
       <div class="jira-tab" data-tab="board">Tablero (Board)</div>
       <div class="jira-tab" data-tab="work-items">Work items (Lista)</div>
@@ -155,6 +156,88 @@
 
           <!-- Contenedor dinámico de celdas / bloques de bitácora -->
           <div id="bitacora-entries-list" class="d-flex flex-column gap-3 mb-5"></div>
+        </div>
+      </div>
+
+      <!-- 0.2 VISTA PORTAFOLIO DE PROYECTOS -->
+      <div id="view-portfolio" class="view-panel p-4" style="overflow-y: auto; height: 100%; display:none;">
+        <div class="container-fluid" style="max-width: 1400px;">
+          
+          <!-- Encabezado de Portafolio -->
+          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap gap-2">
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <h3 class="fs-5 fw-bold mb-0">Portafolio de Proyectos</h3>
+                <span id="portfolio-total-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
+              </div>
+              <span class="text-muted small">Vista ejecutiva consolidada, avance y edición rápida de metadatos.</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button id="btn-portfolio-new-project" class="btn btn-sm btn-primary py-1 px-3 d-flex align-items-center gap-1">
+                <span>+ Nuevo Proyecto</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros -->
+          <div class="card p-3 mb-3 border shadow-sm bg-body-tertiary">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-4">
+                <input type="text" id="portfolio-filter-search" class="form-control form-control-sm" placeholder="Buscar por clave, nombre o tema...">
+              </div>
+              <div class="col-md-3">
+                <select id="portfolio-filter-theme" class="form-select form-select-sm">
+                  <option value="">Todos los Temas</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select id="portfolio-filter-difficulty" class="form-select form-select-sm">
+                  <option value="">Toda Dificultad</option>
+                  <option value="1">1 Estrella (★☆☆☆☆)</option>
+                  <option value="2">2 Estrellas (★★☆☆☆)</option>
+                  <option value="3">3 Estrellas (★★★☆☆)</option>
+                  <option value="4">4 Estrellas (★★★★☆)</option>
+                  <option value="5">5 Estrellas (★★★★★)</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select id="portfolio-filter-status" class="form-select form-select-sm">
+                  <option value="">Todos los Estados</option>
+                  <option value="Planeación">Planeación</option>
+                  <option value="En Curso">En Curso</option>
+                  <option value="Terminado">Terminado</option>
+                  <option value="Pausado">Pausado</option>
+                </select>
+              </div>
+              <div class="col-md-1 text-end">
+                <button id="btn-portfolio-reset-filters" class="btn btn-sm btn-outline-secondary w-100 py-1" title="Limpiar filtros">Reset</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Portafolio -->
+          <div class="card border shadow-sm">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="portfolio-table">
+                <thead class="table-light">
+                  <tr class="small text-muted text-uppercase">
+                    <th style="width: 75px;">Clave</th>
+                    <th style="min-width: 240px;">Nombre del Proyecto</th>
+                    <th style="min-width: 140px;">Tema / Eje</th>
+                    <th style="width: 120px;">Dificultad</th>
+                    <th style="width: 110px;">Estado</th>
+                    <th style="min-width: 140px;">Progreso</th>
+                    <th style="width: 120px;">Última Bitácora</th>
+                    <th style="width: 130px;" class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="portfolio-table-body">
+                  <!-- Filas dinámicas -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -384,15 +467,47 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          <input type="hidden" id="modal-proj-id" value="">
           <div class="mb-3">
             <label class="form-label small fw-bold">Nombre del Proyecto:</label>
-            <input type="text" id="modal-proj-name" class="form-control" placeholder="Ej. PJ-67 Platform">
+            <input type="text" id="modal-proj-name" class="form-control form-control-sm" placeholder="Ej. PJ-67 Platform">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Tema:</label>
+              <input type="text" id="modal-proj-theme" class="form-control form-control-sm" placeholder="Ej. Riesgo de Crédito">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Eje:</label>
+              <input type="text" id="modal-proj-axis" class="form-control form-control-sm" placeholder="Ej. Abierto, MLOps, Data">
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Dificultad (1 a 5):</label>
+              <select id="modal-proj-difficulty" class="form-select form-select-sm">
+                <option value="1">★☆☆☆☆ (1 - Básica)</option>
+                <option value="2">★★☆☆☆ (2 - Intermedia)</option>
+                <option value="3" selected>★★★☆☆ (3 - Media)</option>
+                <option value="4">★★★★☆ (4 - Avanzada)</option>
+                <option value="5">★★★★★ (5 - Experto)</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Estado General:</label>
+              <select id="modal-proj-status" class="form-select form-select-sm">
+                <option value="Planeación" selected>Planeación</option>
+                <option value="En Curso">En Curso</option>
+                <option value="Terminado">Terminado</option>
+                <option value="Pausado">Pausado</option>
+              </select>
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">URL de Repositorio GitHub:</label>
-            <div class="input-group">
+            <div class="input-group input-group-sm">
               <span class="input-group-text">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                 </svg>
               </span>
@@ -402,7 +517,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Descripción:</label>
-            <textarea id="modal-proj-desc" class="form-control" rows="3" placeholder="Propósito del proyecto..."></textarea>
+            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="3" placeholder="Propósito del proyecto..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">

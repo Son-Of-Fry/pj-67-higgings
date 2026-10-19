@@ -624,3 +624,24 @@ body {
 .bitacora-block-body {
   padding: 18px 22px;
 }
+
+/* Portafolio de Proyectos View */
+.portfolio-stars {
+  color: #f59e0b;
+  letter-spacing: 1px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.portfolio-row-clickable {
+  transition: background-color 0.15s ease;
+}
+
+.portfolio-row-clickable:hover {
+  background-color: var(--card-hover-bg) !important;
+}
+
+.portfolio-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+}

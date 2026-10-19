@@ -38,10 +38,30 @@ class Database:
                 name TEXT NOT NULL,
                 description TEXT DEFAULT '',
                 github_url TEXT DEFAULT '',
+                readme_markdown TEXT DEFAULT '',
+                difficulty INTEGER DEFAULT 3,
+                theme TEXT DEFAULT '',
+                axis TEXT DEFAULT 'Abierto',
+                status TEXT DEFAULT 'Planeación',
+                extra_data TEXT DEFAULT '{}',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """)
+
+            # Auto-migraciones para proyectos existentes
+            cursor.execute("PRAGMA table_info(projects)")
+            existing_cols = [row[1] for row in cursor.fetchall()]
+            for col_name, col_type in [
+                ("readme_markdown", "TEXT DEFAULT ''"),
+                ("difficulty", "INTEGER DEFAULT 3"),
+                ("theme", "TEXT DEFAULT ''"),
+                ("axis", "TEXT DEFAULT 'Abierto'"),
+                ("status", "TEXT DEFAULT 'Planeación'"),
+                ("extra_data", "TEXT DEFAULT '{}'")
+            ]:
+                if col_name not in existing_cols:
+                    cursor.execute(f"ALTER TABLE projects ADD COLUMN {col_name} {col_type}")
 
             # 2. Sprints (Scrum)
             cursor.execute("""
@@ -545,11 +565,20 @@ Bienvenido a la Wiki de documentación interna del proyecto.
                 SELECT p.*,
                        (SELECT name FROM sprints WHERE project_id = p.id AND status = 'active' LIMIT 1) as active_sprint_name,
                        (SELECT COUNT(*) FROM tasks WHERE project_id = p.id) as total_tasks,
+                       (SELECT COUNT(*) FROM tasks t JOIN columns c ON t.column_id = c.id WHERE t.project_id = p.id AND c.title = 'Terminado') as completed_tasks,
+                       (SELECT entry_date FROM bitacora_entries WHERE project_id = p.id ORDER BY entry_date DESC, id DESC LIMIT 1) as last_bitacora_date,
                        (SELECT COUNT(*) FROM project_docs WHERE project_id = p.id) as total_docs
                 FROM projects p
                 ORDER BY p.id ASC
             """)
-            return [dict(r) for r in cursor.fetchall()]
+            projects = []
+            for r in cursor.fetchall():
+                d = dict(r)
+                total = d.get("total_tasks") or 0
+                completed = d.get("completed_tasks") or 0
+                d["progress_percent"] = round((completed / total) * 100) if total > 0 else 0
+                projects.append(d)
+            return projects
 
     def get_project(self, project_id: int) -> Optional[Dict[str, Any]]:
         with self._get_connection() as conn:
@@ -558,19 +587,29 @@ Bienvenido a la Wiki de documentación interna del proyecto.
                 SELECT p.*,
                        (SELECT name FROM sprints WHERE project_id = p.id AND status = 'active' LIMIT 1) as active_sprint_name,
                        (SELECT COUNT(*) FROM tasks WHERE project_id = p.id) as total_tasks,
+                       (SELECT COUNT(*) FROM tasks t JOIN columns c ON t.column_id = c.id WHERE t.project_id = p.id AND c.title = 'Terminado') as completed_tasks,
+                       (SELECT entry_date FROM bitacora_entries WHERE project_id = p.id ORDER BY entry_date DESC, id DESC LIMIT 1) as last_bitacora_date,
                        (SELECT COUNT(*) FROM project_docs WHERE project_id = p.id) as total_docs
                 FROM projects p WHERE p.id = ?
             """, (project_id,))
             row = cursor.fetchone()
-            return dict(row) if row else None
+            if not row:
+                return None
+            d = dict(row)
+            total = d.get("total_tasks") or 0
+            completed = d.get("completed_tasks") or 0
+            d["progress_percent"] = round((completed / total) * 100) if total > 0 else 0
+            return d
 
-    def create_project(self, name: str, description: str = "", github_url: str = "", readme_markdown: str = "") -> Dict[str, Any]:
+    def create_project(self, name: str, description: str = "", github_url: str = "", readme_markdown: str = "", difficulty: int = 3, theme: str = "", axis: str = "Abierto", status: str = "Planeación", extra_data: str = "{}") -> Dict[str, Any]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             cursor.execute(
-                "INSERT INTO projects (name, description, github_url, readme_markdown, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-                (name, description, github_url, readme_markdown, now, now)
+                """INSERT INTO projects 
+                   (name, description, github_url, readme_markdown, difficulty, theme, axis, status, extra_data, created_at, updated_at) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (name, description, github_url, readme_markdown, difficulty, theme, axis, status, extra_data, now, now)
             )
             project_id = cursor.lastrowid
 
@@ -597,7 +636,7 @@ Bienvenido a la Wiki de documentación interna del proyecto.
 
         fields = []
         values = []
-        for key in ["name", "description", "github_url", "readme_markdown"]:
+        for key in ["name", "description", "github_url", "readme_markdown", "difficulty", "theme", "axis", "status", "extra_data"]:
             if key in kwargs and kwargs[key] is not None:
                 fields.append(f"{key} = ?")
                 values.append(kwargs[key])
