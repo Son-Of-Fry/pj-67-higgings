@@ -433,15 +433,15 @@ MCP_TOOLS = [
     },
     {
         "name": "add_bitacora_entry",
-        "description": "Añade una nueva entrada o bloque a la bitácora del proyecto en Markdown.",
+        "description": "Añade una nueva entrada a la bitácora del proyecto en Markdown. OBLIGATORIO: El campo 'content_markdown' DEBE seguir estrictamente esta plantilla de 6 bloques:\n**Proyecto:** [Clave y nombre]\n**Actividades:** [Qué se hizo]\n**Herramientas/IA:** [Herramientas, librerías o agentes usados]\n**Aprendí:** [Hallazgo técnico, causa raíz o decisión de arquitectura]\n**Resultado:** [Impacto o estado funcional logrado]\n**Siguiente:** [Próximos pasos]",
         "inputSchema": {
             "type": "object",
             "required": ["content_markdown"],
             "properties": {
                 "project_id": {
                     "type": "integer",
-                    "description": "ID del proyecto (por defecto 1)",
-                    "default": 1
+                    "description": "ID del proyecto (por defecto 67 para Huggins Platform)",
+                    "default": 67
                 },
                 "title": {
                     "type": "string",
@@ -449,7 +449,7 @@ MCP_TOOLS = [
                 },
                 "content_markdown": {
                     "type": "string",
-                    "description": "Contenido de la entrada en Markdown (actividades, herramientas, aprendizajes, etc.)"
+                    "description": "Contenido en Markdown siguiendo estrictamente la plantilla: **Proyecto:**, **Actividades:**, **Herramientas/IA:**, **Aprendí:**, **Resultado:**, **Siguiente:**"
                 },
                 "entry_date": {
                     "type": "string",
@@ -460,7 +460,7 @@ MCP_TOOLS = [
     },
     {
         "name": "update_bitacora_entry",
-        "description": "Modifica una entrada existente de la bitácora por su ID.",
+        "description": "Modifica una entrada existente de la bitácora por su ID. El campo 'content_markdown' debe mantener la plantilla: **Proyecto:**, **Actividades:**, **Herramientas/IA:**, **Aprendí:**, **Resultado:**, **Siguiente:**",
         "inputSchema": {
             "type": "object",
             "required": ["entry_id", "content_markdown"],
@@ -475,7 +475,7 @@ MCP_TOOLS = [
                 },
                 "content_markdown": {
                     "type": "string",
-                    "description": "Nuevo contenido Markdown de la entrada"
+                    "description": "Nuevo contenido Markdown siguiendo estrictamente la plantilla de 6 bloques"
                 }
             }
         }

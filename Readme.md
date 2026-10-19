@@ -199,6 +199,18 @@ En la configuracion de Cursor (Settings -> Features -> MCP):
 
 ---
 
-## 8. Licencia
+## 8. Roadmap y Actualizaciones Futuras de Seguridad
+
+Plan de mitigación y endurecimiento (hardening) de seguridad:
+
+1. **Restricción Estricta de CORS:** Limitar `allow_origins` exclusivamente a los orígenes autorizados (`http://localhost:28945` y la IP Tailscale `http://100.67.210.7:28945`), eliminando el comodín abierto para prevenir ataques cross-site desde páginas externas en el navegador.
+2. **Capa de Autenticación Interna (Zero-Trust):** Activar validación de token Bearer en el middleware de FastAPI para endpoints destructivos (`POST`, `PUT`, `DELETE`) y el servidor MCP, blindando el acceso contra dispositivos no autorizados en la Tailnet.
+3. **Sanitización de Markdown contra XSS:** Integrar `DOMPurify` en el renderizado cliente de Markdown (`marked.parse`) para evitar inyección de scripts almacenados en bitácoras o documentos.
+4. **Principio de Menor Privilegio en Docker:** Crear y declarar un usuario no privilegiado (`USER 1000:1000`) en el Dockerfile, evitando ejecutar el proceso Uvicorn como `root` con acceso de escritura al host.
+5. **Aislamiento Estricto de Sesiones MCP:** Exigir `session_id` obligatorio en `/messages` y rechazar peticiones huérfanas con HTTP 400 para prevenir cruces o interceptación de eventos entre agentes concurrentes.
+
+---
+
+## 9. Licencia
 
 Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo `LICENSE` para mas detalles.
