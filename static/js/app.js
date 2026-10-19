@@ -97,7 +97,7 @@ async function loadProjects() {
     });
 
     if (projects.length > 0) {
-      currentProjectId = currentProjectId || projects[0].id;
+      currentProjectId = (currentProjectId !== null && currentProjectId !== undefined) ? currentProjectId : projects[0].id;
       sel.value = currentProjectId;
       await switchProject(currentProjectId);
     }
@@ -257,7 +257,7 @@ function setupEventListeners() {
 }
 
 async function saveProjectDetails(name, github_url, description) {
-  if (!currentProjectId) return;
+  if (currentProjectId === null || currentProjectId === undefined) return;
   try {
     const res = await fetch(`/api/projects/${currentProjectId}`, {
       method: 'PUT',
@@ -300,7 +300,7 @@ async function switchTab(tabId) {
 }
 
 async function refreshActiveView() {
-  if (!currentProjectId) return;
+  if (currentProjectId === null || currentProjectId === undefined) return;
 
   if (currentTab === 'home') {
     await renderHomeReadme();
@@ -1020,7 +1020,7 @@ function setupBitacoraActions() {
   btnCancel?.addEventListener('click', closeForm);
 
   btnSave?.addEventListener('click', async () => {
-    if (!currentProjectId) return;
+    if (currentProjectId === null || currentProjectId === undefined) return;
     const title = inputTitle?.value.trim() || 'Entrada de Bitácora';
     const entryDate = inputDate?.value || new Date().toISOString().split('T')[0];
     const content = textareaContent?.value.trim();
@@ -1058,7 +1058,7 @@ function setupBitacoraActions() {
 }
 
 async function renderBitacora() {
-  if (!currentProjectId) return;
+  if (currentProjectId === null || currentProjectId === undefined) return;
   const headerTitle = document.getElementById('bitacora-header-title');
   if (headerTitle && currentProjectData) {
     headerTitle.textContent = `Bitácora — ${currentProjectData.name}`;
@@ -1297,8 +1297,8 @@ function setupPortfolioActions() {
   // Guardar desde el modal de edición de proyecto
   document.getElementById('btn-modal-save-proj')?.addEventListener('click', async () => {
     const idInput = document.getElementById('modal-proj-id');
-    const targetId = idInput?.value ? parseInt(idInput.value) : currentProjectId;
-    if (!targetId) return;
+    const targetId = (idInput && idInput.value !== '') ? parseInt(idInput.value) : currentProjectId;
+    if (targetId === null || targetId === undefined) return;
 
     const name = document.getElementById('modal-proj-name')?.value.trim();
     const theme = document.getElementById('modal-proj-theme')?.value.trim();
