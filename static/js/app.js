@@ -75,6 +75,12 @@ function initMermaid() {
 // 2. Gestión de Proyectos
 // ==========================================
 
+function formatProjectDisplay(p) {
+  if (!p) return '';
+  const prefix = `PJ-${String(p.id).padStart(2, '0')}`;
+  return p.name.startsWith('PJ-') ? p.name : `${prefix} — ${p.name}`;
+}
+
 async function loadProjects() {
   try {
     const res = await fetch('/api/projects');
@@ -86,7 +92,7 @@ async function loadProjects() {
     projects.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = p.name;
+      opt.textContent = formatProjectDisplay(p);
       sel.appendChild(opt);
     });
 
@@ -106,7 +112,7 @@ async function switchProject(projectId) {
     const res = await fetch(`/api/projects/${currentProjectId}`);
     if (res.ok) {
       currentProjectData = await res.json();
-      document.getElementById('current-project-title').textContent = currentProjectData.name;
+      document.getElementById('current-project-title').textContent = formatProjectDisplay(currentProjectData);
       updateProjectGitHubLink(currentProjectData.github_url);
     }
   } catch (err) {
@@ -1415,7 +1421,7 @@ function applyPortfolioFilters() {
       const matchName = (p.name || '').toLowerCase().includes(search);
       const matchDesc = (p.description || '').toLowerCase().includes(search);
       const matchTheme = (p.theme || '').toLowerCase().includes(search);
-      const matchId = `pj-${p.id}`.includes(search);
+      const matchId = `pj-${String(p.id).padStart(2, '0')}`.includes(search) || `pj-${p.id}`.includes(search);
       if (!matchName && !matchDesc && !matchTheme && !matchId) return false;
     }
     if (theme && p.theme !== theme) return false;
@@ -1462,7 +1468,7 @@ function renderPortfolioRows(projects) {
 
     tr.innerHTML = `
       <td>
-        <span class="badge bg-body-secondary text-body border font-monospace">PJ-${p.id}</span>
+        <span class="badge bg-body-secondary text-body border font-monospace">PJ-${String(p.id).padStart(2, '0')}</span>
       </td>
       <td>
         <div class="fw-bold text-body project-link-title" style="cursor: pointer;" title="Ir a este proyecto">
