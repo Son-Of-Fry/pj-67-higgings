@@ -13,6 +13,7 @@ let currentDocId = null;
 let taskModalInstance = null;
 let releaseModalInstance = null;
 let projectSettingsModalInstance = null;
+let portfolioModalInstance = null;
 
 // ==========================================
 // 1. Inicialización & Modo Claro / Oscuro
@@ -26,6 +27,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (releaseModalEl) releaseModalInstance = new bootstrap.Modal(releaseModalEl);
   const projSettingsModalEl = document.getElementById('project-settings-modal');
   if (projSettingsModalEl) projectSettingsModalInstance = new bootstrap.Modal(projSettingsModalEl);
+  const portfolioModalEl = document.getElementById('portfolio-modal');
+  if (portfolioModalEl) portfolioModalInstance = new bootstrap.Modal(portfolioModalEl);
 
   await loadProjects();
   setupEventListeners();
@@ -264,7 +267,6 @@ async function switchTab(tabId) {
   currentTab = tabId;
   const viewMap = {
     'home': 'view-home',
-    'portfolio': 'view-portfolio',
     'bitacora': 'view-bitacora',
     'board': 'view-board',
     'work-items': 'view-work-items',
@@ -290,8 +292,6 @@ async function refreshActiveView() {
 
   if (currentTab === 'home') {
     await renderHomeReadme();
-  } else if (currentTab === 'portfolio') {
-    await renderPortfolio();
   } else if (currentTab === 'board') {
     await renderBoard();
   } else if (currentTab === 'work-items') {
@@ -1221,12 +1221,18 @@ async function renderBitacora() {
 let allPortfolioProjects = [];
 
 function setupPortfolioActions() {
+  const btnOpen = document.getElementById('btn-open-portfolio');
   const searchInput = document.getElementById('portfolio-filter-search');
   const themeSelect = document.getElementById('portfolio-filter-theme');
   const diffSelect = document.getElementById('portfolio-filter-difficulty');
   const statusSelect = document.getElementById('portfolio-filter-status');
   const btnReset = document.getElementById('btn-portfolio-reset-filters');
   const btnNewProj = document.getElementById('btn-portfolio-new-project');
+
+  btnOpen?.addEventListener('click', async () => {
+    await renderPortfolio();
+    if (portfolioModalInstance) portfolioModalInstance.show();
+  });
 
   searchInput?.addEventListener('input', applyPortfolioFilters);
   themeSelect?.addEventListener('change', applyPortfolioFilters);
@@ -1479,6 +1485,7 @@ function renderPortfolioRows(projects) {
     });
 
     const openProject = async () => {
+      if (portfolioModalInstance) portfolioModalInstance.hide();
       document.getElementById('project-selector').value = p.id;
       await switchProject(p.id);
       document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
