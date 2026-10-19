@@ -28,7 +28,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const projSettingsModalEl = document.getElementById('project-settings-modal');
   if (projSettingsModalEl) projectSettingsModalInstance = new bootstrap.Modal(projSettingsModalEl);
   const portfolioModalEl = document.getElementById('portfolio-modal');
-  if (portfolioModalEl) portfolioModalInstance = new bootstrap.Modal(portfolioModalEl);
+  if (portfolioModalEl) {
+    portfolioModalInstance = new bootstrap.Modal(portfolioModalEl);
+    portfolioModalEl.addEventListener('show.bs.modal', async () => {
+      await renderPortfolio();
+    });
+  }
 
   await loadProjects();
   setupEventListeners();
@@ -1219,6 +1224,23 @@ async function renderBitacora() {
 // ==========================================
 
 let allPortfolioProjects = [];
+
+window.openPortfolioModal = async function() {
+  try {
+    await renderPortfolio();
+  } catch (e) {
+    console.error('Error pre-rendering portfolio:', e);
+  }
+  if (!portfolioModalInstance) {
+    const el = document.getElementById('portfolio-modal');
+    if (el && typeof bootstrap !== 'undefined') {
+      portfolioModalInstance = new bootstrap.Modal(el);
+    }
+  }
+  if (portfolioModalInstance) {
+    portfolioModalInstance.show();
+  }
+};
 
 function setupPortfolioActions() {
   const btnOpen = document.getElementById('btn-open-portfolio');

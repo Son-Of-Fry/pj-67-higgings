@@ -27,7 +27,7 @@
       <!-- Selector de Proyecto -->
       <select id="project-selector" class="project-selector-dropdown ms-2"></select>
       <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
-      <button id="btn-open-portfolio" class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1" title="Ver Portafolio de Proyectos">
+      <button id="btn-open-portfolio" class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1" data-bs-toggle="modal" data-bs-target="#portfolio-modal" onclick="openPortfolioModal()" title="Ver Portafolio de Proyectos">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         <span>Portafolio</span>
       </button>
