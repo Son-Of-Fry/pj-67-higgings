@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   await loadProjects();
+  await renderPortfolio();
   setupEventListeners();
   initMermaid();
 });
@@ -1373,6 +1374,7 @@ function openEditProjectModal(project) {
 }
 
 async function renderPortfolio() {
+  window.renderPortfolio = renderPortfolio;
   try {
     const res = await fetch('/api/projects');
     if (!res.ok) throw new Error('Error al obtener lista de proyectos');
