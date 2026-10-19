@@ -3,6 +3,8 @@
 .env.local
 *.key
 *.cert
+*.xlsx
+*.sql
 .agents/
 
 # Base de datos y almacenamiento persistente local
