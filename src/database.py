@@ -132,8 +132,8 @@ class Database:
             proj_col_names = [r["name"] for r in cursor.fetchall()]
             if proj_col_names and "github_url" not in proj_col_names:
                 cursor.execute("ALTER TABLE projects ADD COLUMN github_url TEXT DEFAULT ''")
-                cursor.execute("UPDATE projects SET github_url = 'https://github.com/rich/huggins-tutorial' WHERE name LIKE '%PJ-00%'")
-                cursor.execute("UPDATE projects SET github_url = 'https://github.com/rich/huggins-pj67' WHERE name LIKE '%PJ-67%'")
+                cursor.execute("UPDATE projects SET github_url = 'https://github.com/rich/higgings-tutorial' WHERE name LIKE '%PJ-00%'")
+                cursor.execute("UPDATE projects SET github_url = 'https://github.com/rich/higgings-pj67' WHERE name LIKE '%PJ-67%'")
                 cursor.execute("UPDATE projects SET github_url = 'https://github.com/rich/retail-mlops' WHERE name LIKE '%PJ-65%'")
                 conn.commit()
 
@@ -230,7 +230,7 @@ Este documento está escrito en formato **Markdown** y puedes editarlo en cualqu
         # Proyecto 0: PJ-00 Tutorial (Onboarding)
         cursor.execute(
             "INSERT INTO projects (name, description, github_url) VALUES (?, ?, ?)",
-            ("PJ-00 Tutorial", "Proyecto interactivo de bienvenida y tutorial guiado para aprender el flujo Scrum, gestión ágil y conexión con agentes MCP.", "https://github.com/rich/huggins-tutorial")
+            ("PJ-00 Tutorial", "Proyecto interactivo de bienvenida y tutorial guiado para aprender el flujo Scrum, gestión ágil y conexión con agentes MCP.", "https://github.com/rich/higgings-tutorial")
         )
         p0_id = cursor.lastrowid
 
@@ -400,7 +400,7 @@ graph TD
         pj65_id = None
         pj00_id = None
         for name, pid in projects.items():
-            if "PJ-67" in name or "Huggins" in name:
+            if "PJ-67" in name or "Higgings" in name:
                 pj67_id = pid
             elif "PJ-65" in name:
                 pj65_id = pid
@@ -408,7 +408,7 @@ graph TD
                 pj00_id = pid
 
         pj67_entry = """**Proyecto:**  
-PJ-67 (Huggins — AI-Native Agile Management Platform & MCP Server)
+PJ-67 (Higgings — AI-Native Agile Management Platform & MCP Server)
 
 **Actividades:**  
 Integración y despliegue de servidor MCP SSE nativo en Docker sobre Raspberry Pi vía Tailscale, Product Backlog en el tablero, Home (README) interactivo y soporte de Scale-to-Zero con Sablier y Traefik.
@@ -449,7 +449,7 @@ Fase 3: Implementar reglas de salvaguarda financiera (costo + CAC + margen míni
             cursor.execute("""
                 INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (pj67_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
+            """, (pj67_id, "Despliegue inicial Higgings & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
 
         if pj65_id:
             cursor.execute("""
@@ -461,13 +461,13 @@ Fase 3: Implementar reglas de salvaguarda financiera (costo + CAC + margen míni
             cursor.execute("""
                 INSERT INTO bitacora_entries (project_id, title, content_markdown, entry_date, position, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (pj00_id, "Despliegue inicial Huggins & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
+            """, (pj00_id, "Despliegue inicial Higgings & Servidor MCP con Scale-to-Zero", pj67_entry, "2026-10-17", 1, now_str, now_str))
 
     def _seed_initial_data(self, cursor: sqlite3.Cursor):
         # Proyecto 1: PJ-67
         cursor.execute(
             "INSERT INTO projects (name, description, github_url) VALUES (?, ?, ?)",
-            ("PJ-67 Platform", "Sistema autónomo de gestión ágil de proyectos con Scrum y Model Context Protocol", "https://github.com/rich/huggins-pj67")
+            ("PJ-67 Platform", "Sistema autónomo de gestión ágil de proyectos con Scrum y Model Context Protocol", "https://github.com/rich/higgings-pj67")
         )
         p1_id = cursor.lastrowid
 

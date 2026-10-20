@@ -13,7 +13,7 @@ active_sessions: Dict[str, asyncio.Queue] = {}
 MCP_TOOLS = [
     {
         "name": "list_projects",
-        "description": "Lista todos los proyectos registrados en Huggins, con su sprint activo y conteo de tareas.",
+        "description": "Lista todos los proyectos registrados en Higgings, con su sprint activo y conteo de tareas.",
         "inputSchema": {
             "type": "object",
             "properties": {}
@@ -35,7 +35,7 @@ MCP_TOOLS = [
     },
     {
         "name": "create_project",
-        "description": "Crea un nuevo proyecto en Huggins con su tablero Kanban estándar y Sprint 1.",
+        "description": "Crea un nuevo proyecto en Higgings con su tablero Kanban estándar y Sprint 1.",
         "inputSchema": {
             "type": "object",
             "required": ["name"],
@@ -440,7 +440,7 @@ MCP_TOOLS = [
             "properties": {
                 "project_id": {
                     "type": "integer",
-                    "description": "ID del proyecto (por defecto 67 para Huggins Platform)",
+                    "description": "ID del proyecto (por defecto 67 para Higgings Platform)",
                     "default": 67
                 },
                 "title": {
@@ -512,7 +512,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 arguments.get("description", ""),
                 arguments.get("github_url", "")
             )
-            return f"✅ Proyecto #{p['id']} '{p['name']}' creado exitosamente en Huggins con su tablero y Sprint 1."
+            return f"✅ Proyecto #{p['id']} '{p['name']}' creado exitosamente en Higgings con su tablero y Sprint 1."
 
         elif tool_name == "get_board_state":
             pid = arguments.get("project_id", 1)
@@ -662,7 +662,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 content_markdown=arguments["content_markdown"],
                 sprint_id=arguments.get("sprint_id")
             )
-            return f"✅ Release registrado en Huggins: [{update['version_tag']}] {update['title']}"
+            return f"✅ Release registrado en Higgings: [{update['version_tag']}] {update['title']}"
 
         elif tool_name == "list_releases":
             updates = db.list_updates(arguments.get("project_id", 1))
@@ -752,7 +752,7 @@ def process_jsonrpc(msg: Dict[str, Any]) -> Optional[Dict[str, Any]]:
                     }
                 },
                 "serverInfo": {
-                    "name": "huggins-agile-mcp",
+                    "name": "higgings-agile-mcp",
                     "version": "2.1.0"
                 }
             }

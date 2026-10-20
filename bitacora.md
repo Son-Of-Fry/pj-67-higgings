@@ -1,4 +1,4 @@
-# Huggins (PJ-67) - AI-Native Agile Management Platform & MCP Server
+# Higgings (PJ-67) - AI-Native Agile Management Platform & MCP Server
 
 Plataforma de ingenieria y productividad agil inspirada en metodologias Scrum y SDLC moderno, empaquetada en un unico contenedor Docker para despliegue local o en Raspberry Pi, con Bootstrap 5 offline, persistencia en SQLite (WAL mode), soporte multi-proyecto con enlaces directos a GitHub, documentacion central Home/README editable en Markdown y servidor Model Context Protocol (MCP) nativo con 20 herramientas para agentes de Inteligencia Artificial.
 
@@ -11,7 +11,7 @@ Las soluciones comerciales de gestion de proyectos (Jira, Linear, Monday, Notion
 1. **Costos recurrentes y dependencia de la nube:** Tarifas mensuales por usuario con caracteristicas avanzadas bloqueadas tras suscripciones enterprise.
 2. **Desconexion con agentes autonomos de IA:** Ausencia de una interfaz estandarizada y segura para que modelos de lenguaje (LLMs) inspeccionen el backlog, planifiquen sprints, actualicen estados de tareas y lean documentacion tecnica directamente sobre la infraestructura propia.
 
-**Huggins** resuelve este reto mediante una solucion autoalojada y autocontenida que une la agilidad de Scrum con el estandar abierto **Model Context Protocol (MCP)**.
+**Higgings** resuelve este reto mediante una solucion autoalojada y autocontenida que une la agilidad de Scrum con el estandar abierto **Model Context Protocol (MCP)**.
 
 ---
 
@@ -51,7 +51,7 @@ Para maximizar la visibilidad y facilitar la priorización ágil:
                                           |
                                           v
       +-----------------------------------------------------------------+
-      |                 Contenedor Docker (Huggins)                     |
+      |                 Contenedor Docker (Higgings)                     |
       |                                                                 |
       |   [ Web UI ]            [ API REST ]         [ Servidor MCP ]   |
       |  Bootstrap 5           FastAPI Core             Transporte      |
@@ -72,7 +72,7 @@ Para maximizar la visibilidad y facilitar la priorización ágil:
 
 El **Model Context Protocol (MCP)** es el estandar abierto desarrollado por Anthropic para la comunicacion segura y bidireccional entre clientes de IA (Claude Desktop, Cursor, Antigravity) y servidores de contexto.
 
-Huggins expone 18 herramientas especializadas a traves del endpoint SSE (`/sse`):
+Higgings expone 18 herramientas especializadas a traves del endpoint SSE (`/sse`):
 
 | Herramienta | Proposito | Parametros Principales |
 | :--- | :--- | :--- |
@@ -122,22 +122,22 @@ Parametros configurables en `.env`:
 Para construir la imagen Docker localmente:
 
 ```bash
-docker build -t huggins-platform -f dockerfile .
+docker build -t higgings-platform -f dockerfile .
 ```
 
 Para arrancar el contenedor en segundo plano con persistencia en el directorio local `./data`:
 
 ```bash
 docker run -d \
-  --name huggins-platform \
+  --name higgings-platform \
   -p 28945:8000 \
   -v "$(pwd)/data":/data \
   --restart unless-stopped \
-  huggins-platform
+  higgings-platform
 ```
 
 ### Accesos Disponibles
-- **Interfaz Web Huggins:** `http://localhost:28945`
+- **Interfaz Web Higgings:** `http://localhost:28945`
 - **Documentacion Interactiva Swagger API:** `http://localhost:28945/docs`
 - **Endpoint MCP (SSE):** `http://localhost:28945/sse`
 
@@ -153,7 +153,7 @@ Edita el archivo de configuracion `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "huggins": {
+    "higgings": {
       "url": "http://localhost:28945/sse",
       "headers": {
         "Authorization": "Bearer super_secret_kanban_token_2026"
@@ -166,7 +166,7 @@ Edita el archivo de configuracion `claude_desktop_config.json`:
 ### Cursor
 En la configuracion de Cursor (Settings -> Features -> MCP):
 1. Anadir nuevo servidor MCP.
-2. Nombre: `Huggins`
+2. Nombre: `Higgings`
 3. Tipo: `SSE`
 4. URL: `http://localhost:28945/sse`
 
@@ -189,7 +189,7 @@ En la configuracion de Cursor (Settings -> Features -> MCP):
 |   `-- api/
 |       `-- routes.py         # Rutas de la API REST para Kanban, Sprints y Backlog
 `-- static/                   # Recursos frontend (Vanilla JS + Bootstrap 5 local)
-    |-- index.html            # Interfaz principal de Huggins
+    |-- index.html            # Interfaz principal de Higgings
     |-- css/
     |   `-- style.css         # Estilos dark/light mode y diseno tipo Atlassian
     |-- js/

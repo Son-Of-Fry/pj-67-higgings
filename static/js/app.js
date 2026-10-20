@@ -1,5 +1,5 @@
 /**
- * Huggins Agile & MCP Platform — Frontend Logic
+ * Higgings Agile & MCP Platform — Frontend Logic
  */
 
 let currentProjectId = null;
