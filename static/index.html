@@ -19,17 +19,17 @@
   <!-- Topbar Principal estilo Jira -->
   <header class="jira-topbar">
     <div class="jira-logo-box">
-      <div class="jira-logo-badge">
+      <div class="jira-logo-badge" id="btn-brand-home" style="cursor: pointer;" title="Ir al Inicio / Portafolio Global">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z"/></svg>
       </div>
-      <span class="jira-brand-name">Higgings</span>
+      <span class="jira-brand-name" id="brand-name-home" style="cursor: pointer;" title="Ir al Inicio / Portafolio Global">Higgings</span>
       
       <!-- Selector de Proyecto -->
       <select id="project-selector" class="project-selector-dropdown ms-2"></select>
       <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
-      <button id="btn-open-portfolio" class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1" data-bs-toggle="modal" data-bs-target="#portfolio-modal" onclick="openPortfolioModal()" title="Ver Portafolio de Proyectos">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Portafolio</span>
+      <button id="btn-home-portfolio" class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1" title="Inicio / Portafolio General">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Inicio</span>
       </button>
     </div>
 
@@ -49,7 +49,7 @@
   </header>
 
   <!-- Subheader con Título y Navegación de Vistas -->
-  <section class="jira-subheader">
+  <section class="jira-subheader" id="project-subheader">
     <div class="project-title-row">
       <div class="project-heading">
         <h1 id="current-project-title" class="project-name-text" title="Clic para editar nombre y URL de GitHub" style="cursor: pointer;">PJ-00 Tutorial</h1>
@@ -88,8 +88,166 @@
     <!-- Vista Principal Cambiable -->
     <main class="main-view-container">
 
+      <!-- VISTA INICIO / PORTAFOLIO GLOBAL (LANDING VIEW) -->
+      <div id="view-portfolio-hub" class="view-panel active p-4" style="overflow-y: auto; height: 100%;">
+        <div class="container-fluid" style="max-width: 1400px;">
+          
+          <!-- Encabezado del Hub -->
+          <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div>
+              <h2 class="fs-4 fw-bold mb-1 d-flex align-items-center gap-2">
+                <span>Centro de Proyectos</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">Higgings Platform</span>
+              </h2>
+              <span class="text-muted small">Supervisión, salud y flujo ágil de todo el catálogo de proyectos y modelos de IA.</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button id="btn-hub-new-project" class="btn btn-sm btn-primary py-1.5 px-3 d-flex align-items-center gap-1 shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Nuevo Proyecto</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Métricas Globales Rápidas (4 Cards) -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+              <div class="card p-3 border shadow-sm bg-body h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="text-muted small fw-semibold text-uppercase">Total Proyectos</span>
+                  <div class="badge bg-primary-subtle text-primary p-2 rounded-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                  </div>
+                </div>
+                <div class="fs-3 fw-bold mt-2" id="hub-metric-total-projects">0</div>
+                <span class="small text-muted mt-1">Registrados en base de datos</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="card p-3 border shadow-sm bg-body h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="text-muted small fw-semibold text-uppercase">En Curso / Activos</span>
+                  <div class="badge bg-warning-subtle text-warning p-2 rounded-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  </div>
+                </div>
+                <div class="fs-3 fw-bold mt-2 text-warning-emphasis" id="hub-metric-active-projects">0</div>
+                <span class="small text-muted mt-1">Con desarrollo o sprint abierto</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="card p-3 border shadow-sm bg-body h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="text-muted small fw-semibold text-uppercase">Terminados</span>
+                  <div class="badge bg-success-subtle text-success p-2 rounded-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  </div>
+                </div>
+                <div class="fs-3 fw-bold mt-2 text-success-emphasis" id="hub-metric-completed-projects">0</div>
+                <span class="small text-muted mt-1">Hitos y entregables listos</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="card p-3 border shadow-sm bg-body h-100">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="text-muted small fw-semibold text-uppercase">Progreso Global</span>
+                  <div class="badge bg-info-subtle text-info p-2 rounded-circle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  </div>
+                </div>
+                <div class="fs-3 fw-bold mt-2 text-info-emphasis" id="hub-metric-overall-progress">0%</div>
+                <span class="small text-muted mt-1" id="hub-metric-tasks-ratio">0/0 tareas completadas</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acceso Rápido a Proyectos Recientes / Clave -->
+          <div class="mb-4">
+            <h5 class="fs-6 fw-bold mb-3 d-flex align-items-center gap-1.5 text-uppercase text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Acceso Rápido / Proyectos Clave</span>
+            </h5>
+            <div class="row g-3" id="hub-quick-access-container">
+              <!-- Cards dinámicas de proyectos recientes -->
+            </div>
+          </div>
+
+          <!-- Portafolio Completo y Filtros -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="fs-6 fw-bold mb-0 d-flex align-items-center gap-1.5 text-uppercase text-muted">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span>Catálogo Completo de Proyectos</span>
+              </h5>
+              <span id="hub-portfolio-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
+            </div>
+
+            <!-- Barra de Filtros -->
+            <div class="card p-2.5 mb-3 border shadow-sm bg-body-tertiary">
+              <div class="row g-2 align-items-center">
+                <div class="col-md-4">
+                  <input type="text" id="hub-filter-search" class="form-control form-control-sm" placeholder="Buscar por clave, nombre o tema...">
+                </div>
+                <div class="col-md-3">
+                  <select id="hub-filter-theme" class="form-select form-select-sm">
+                    <option value="">Todos los Temas</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="hub-filter-difficulty" class="form-select form-select-sm">
+                    <option value="">Toda Dificultad</option>
+                    <option value="1">1 Estrella (★☆☆☆☆)</option>
+                    <option value="2">2 Estrellas (★★☆☆☆)</option>
+                    <option value="3">3 Estrellas (★★★☆☆)</option>
+                    <option value="4">4 Estrellas (★★★★☆)</option>
+                    <option value="5">5 Estrellas (★★★★★)</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="hub-filter-status" class="form-select form-select-sm">
+                    <option value="">Todos los Estados</option>
+                    <option value="Planeación">Planeación</option>
+                    <option value="En Curso">En Curso</option>
+                    <option value="Terminado">Terminado</option>
+                    <option value="Pausado">Pausado</option>
+                  </select>
+                </div>
+                <div class="col-md-1 text-end">
+                  <button id="btn-hub-reset-filters" class="btn btn-sm btn-outline-secondary w-100 py-1">Reset</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de Portafolio Integrada -->
+            <div class="card border shadow-sm mb-4">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="hub-portfolio-table">
+                  <thead class="table-light">
+                    <tr class="small text-muted text-uppercase">
+                      <th style="width: 80px;">Clave</th>
+                      <th style="min-width: 240px;">Nombre del Proyecto</th>
+                      <th style="min-width: 140px;">Tema / Eje</th>
+                      <th style="width: 110px;">Dificultad</th>
+                      <th style="width: 100px;">Estado</th>
+                      <th style="min-width: 140px;">Progreso</th>
+                      <th style="width: 110px;">Última Bitácora</th>
+                      <th style="width: 130px;" class="text-end">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hub-portfolio-table-body">
+                    <!-- Filas dinámicas -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
       <!-- 0. VISTA HOME (README MARKDOWN EDITABLE) -->
-      <div id="view-home" class="view-panel active p-4" style="overflow-y: auto; height: 100%;">
+      <div id="view-home" class="view-panel p-4" style="overflow-y: auto; height: 100%; display: none;">
         <div class="container" style="max-width: 920px;">
           <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
@@ -527,6 +685,6 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=2.3"></script>
+  <script src="/static/js/app.js?v=2.5"></script>
 </body>
 </html>

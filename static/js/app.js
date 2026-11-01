@@ -4,7 +4,7 @@
 
 let currentProjectId = null;
 let currentProjectData = null;
-let currentTab = 'home';
+let currentTab = 'portfolio-hub'; // Inicio por defecto en Landing Hub
 let currentBoardData = null;
 let currentTaskId = null;
 let currentDocId = null;
@@ -89,6 +89,12 @@ async function loadProjects() {
     const sel = document.getElementById('project-selector');
     sel.innerHTML = '';
 
+    // Opción predeterminada: Vista Inicio / Portafolio Global
+    const defaultOpt = document.createElement('option');
+    defaultOpt.value = "";
+    defaultOpt.textContent = "⚡ Inicio / Portafolio";
+    sel.appendChild(defaultOpt);
+
     projects.forEach(p => {
       const opt = document.createElement('option');
       opt.value = p.id;
@@ -96,18 +102,62 @@ async function loadProjects() {
       sel.appendChild(opt);
     });
 
-    if (projects.length > 0) {
-      currentProjectId = (currentProjectId !== null && currentProjectId !== undefined) ? currentProjectId : projects[0].id;
+    if (currentProjectId !== null && currentProjectId !== undefined) {
       sel.value = currentProjectId;
-      await switchProject(currentProjectId);
+    } else {
+      sel.value = "";
+      showPortfolioHub();
     }
   } catch (err) {
     console.error('Projects error:', err);
   }
 }
 
+function showPortfolioHub() {
+  currentProjectId = null;
+  currentProjectData = null;
+  currentTab = 'portfolio-hub';
+
+  const subheader = document.getElementById('project-subheader');
+  if (subheader) subheader.style.display = 'none';
+
+  const sel = document.getElementById('project-selector');
+  if (sel) sel.value = "";
+
+  const viewMap = {
+    'portfolio-hub': 'view-portfolio-hub',
+    'home': 'view-home',
+    'bitacora': 'view-bitacora',
+    'board': 'view-board',
+    'work-items': 'view-work-items',
+    'changelog': 'view-changelog',
+    'metrics': 'view-metrics'
+  };
+
+  Object.values(viewMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  const hubEl = document.getElementById('view-portfolio-hub');
+  if (hubEl) hubEl.style.display = 'block';
+
+  document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
+
+  renderPortfolio();
+}
+
 async function switchProject(projectId) {
+  if (projectId === "" || projectId === null || projectId === undefined) {
+    showPortfolioHub();
+    return;
+  }
+
   currentProjectId = parseInt(projectId);
+
+  const subheader = document.getElementById('project-subheader');
+  if (subheader) subheader.style.display = 'block';
+
   try {
     const res = await fetch(`/api/projects/${currentProjectId}`);
     if (res.ok) {
@@ -119,7 +169,13 @@ async function switchProject(projectId) {
     console.error('Switch project error:', err);
   }
 
-  await refreshActiveView();
+  if (currentTab === 'portfolio-hub') {
+    currentTab = 'board';
+    document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.jira-tab[data-tab="board"]')?.classList.add('active');
+  }
+
+  await switchTab(currentTab);
 }
 
 function updateProjectGitHubLink(url) {
@@ -149,6 +205,11 @@ function updateProjectGitHubLink(url) {
 // ==========================================
 
 function setupEventListeners() {
+  // Botones y enlaces al Inicio / Portafolio
+  document.getElementById('btn-brand-home')?.addEventListener('click', showPortfolioHub);
+  document.getElementById('brand-name-home')?.addEventListener('click', showPortfolioHub);
+  document.getElementById('btn-home-portfolio')?.addEventListener('click', showPortfolioHub);
+
   // Selector de proyecto
   document.getElementById('project-selector').addEventListener('change', (e) => {
     switchProject(e.target.value);
@@ -276,8 +337,14 @@ async function saveProjectDetails(name, github_url, description) {
 }
 
 async function switchTab(tabId) {
+  if (tabId === 'portfolio-hub') {
+    showPortfolioHub();
+    return;
+  }
+
   currentTab = tabId;
   const viewMap = {
+    'portfolio-hub': 'view-portfolio-hub',
     'home': 'view-home',
     'bitacora': 'view-bitacora',
     'board': 'view-board',
@@ -1227,7 +1294,7 @@ async function renderBitacora() {
 }
 
 // ==========================================
-// 3.5. Portafolio de Proyectos (Vista Hub)
+// 3.5. Portafolio de Proyectos (Vista Hub y Modal)
 // ==========================================
 
 let allPortfolioProjects = [];
@@ -1251,32 +1318,55 @@ window.openPortfolioModal = async function() {
 
 function setupPortfolioActions() {
   const btnOpen = document.getElementById('btn-open-portfolio');
-  const searchInput = document.getElementById('portfolio-filter-search');
-  const themeSelect = document.getElementById('portfolio-filter-theme');
-  const diffSelect = document.getElementById('portfolio-filter-difficulty');
-  const statusSelect = document.getElementById('portfolio-filter-status');
-  const btnReset = document.getElementById('btn-portfolio-reset-filters');
-  const btnNewProj = document.getElementById('btn-portfolio-new-project');
+  const btnNewProjModal = document.getElementById('btn-portfolio-new-project');
+  const btnNewProjHub = document.getElementById('btn-hub-new-project');
+
+  // Filtros Modal
+  const modalSearch = document.getElementById('portfolio-filter-search');
+  const modalTheme = document.getElementById('portfolio-filter-theme');
+  const modalDiff = document.getElementById('portfolio-filter-difficulty');
+  const modalStatus = document.getElementById('portfolio-filter-status');
+  const modalReset = document.getElementById('btn-portfolio-reset-filters');
+
+  // Filtros Landing Hub
+  const hubSearch = document.getElementById('hub-filter-search');
+  const hubTheme = document.getElementById('hub-filter-theme');
+  const hubDiff = document.getElementById('hub-filter-difficulty');
+  const hubStatus = document.getElementById('hub-filter-status');
+  const hubReset = document.getElementById('btn-hub-reset-filters');
 
   btnOpen?.addEventListener('click', async () => {
     await renderPortfolio();
     if (portfolioModalInstance) portfolioModalInstance.show();
   });
 
-  searchInput?.addEventListener('input', applyPortfolioFilters);
-  themeSelect?.addEventListener('change', applyPortfolioFilters);
-  diffSelect?.addEventListener('change', applyPortfolioFilters);
-  statusSelect?.addEventListener('change', applyPortfolioFilters);
-
-  btnReset?.addEventListener('click', () => {
-    if (searchInput) searchInput.value = '';
-    if (themeSelect) themeSelect.value = '';
-    if (diffSelect) diffSelect.value = '';
-    if (statusSelect) statusSelect.value = '';
-    renderPortfolioRows(allPortfolioProjects);
+  // Listeners filtros modal
+  modalSearch?.addEventListener('input', () => applyPortfolioFilters('modal'));
+  modalTheme?.addEventListener('change', () => applyPortfolioFilters('modal'));
+  modalDiff?.addEventListener('change', () => applyPortfolioFilters('modal'));
+  modalStatus?.addEventListener('change', () => applyPortfolioFilters('modal'));
+  modalReset?.addEventListener('click', () => {
+    if (modalSearch) modalSearch.value = '';
+    if (modalTheme) modalTheme.value = '';
+    if (modalDiff) modalDiff.value = '';
+    if (modalStatus) modalStatus.value = '';
+    renderPortfolioRows(allPortfolioProjects, 'modal');
   });
 
-  btnNewProj?.addEventListener('click', async () => {
+  // Listeners filtros Landing Hub
+  hubSearch?.addEventListener('input', () => applyPortfolioFilters('hub'));
+  hubTheme?.addEventListener('change', () => applyPortfolioFilters('hub'));
+  hubDiff?.addEventListener('change', () => applyPortfolioFilters('hub'));
+  hubStatus?.addEventListener('change', () => applyPortfolioFilters('hub'));
+  hubReset?.addEventListener('click', () => {
+    if (hubSearch) hubSearch.value = '';
+    if (hubTheme) hubTheme.value = '';
+    if (hubDiff) hubDiff.value = '';
+    if (hubStatus) hubStatus.value = '';
+    renderPortfolioRows(allPortfolioProjects, 'hub');
+  });
+
+  const handleCreateProject = async () => {
     const name = prompt('Nombre del nuevo proyecto (ej. PJ-68 Machine Learning):');
     if (!name || !name.trim()) return;
     try {
@@ -1292,7 +1382,10 @@ function setupPortfolioActions() {
     } catch (e) {
       console.error('Error creating project:', e);
     }
-  });
+  };
+
+  btnNewProjModal?.addEventListener('click', handleCreateProject);
+  btnNewProjHub?.addEventListener('click', handleCreateProject);
 
   // Guardar desde el modal de edición de proyecto
   document.getElementById('btn-modal-save-proj')?.addEventListener('click', async () => {
@@ -1334,9 +1427,7 @@ function setupPortfolioActions() {
         if (targetId === currentProjectId) {
           await switchProject(targetId);
         }
-        if (currentTab === 'portfolio') {
-          await renderPortfolio();
-        }
+        await renderPortfolio();
       } else {
         const err = await res.json();
         alert('Error al guardar proyecto: ' + (err.detail || 'Error desconocido'));
@@ -1386,35 +1477,155 @@ async function renderPortfolio() {
     if (!res.ok) throw new Error('Error al obtener lista de proyectos');
     allPortfolioProjects = await res.json();
 
-    const countBadge = document.getElementById('portfolio-total-count');
-    if (countBadge) countBadge.textContent = `${allPortfolioProjects.length} proyectos`;
+    const countModal = document.getElementById('portfolio-total-count');
+    if (countModal) countModal.textContent = `${allPortfolioProjects.length} proyectos`;
+    
+    const countHub = document.getElementById('hub-portfolio-count');
+    if (countHub) countHub.textContent = `${allPortfolioProjects.length} proyectos`;
 
-    // Poblar dropdown de temas únicos
-    const themeSelect = document.getElementById('portfolio-filter-theme');
-    if (themeSelect) {
-      const currentSelectedTheme = themeSelect.value;
-      const themes = Array.from(new Set(allPortfolioProjects.map(p => p.theme).filter(Boolean))).sort();
-      themeSelect.innerHTML = '<option value="">Todos los Temas</option>';
+    // Renderizar Métricas Globales del Landing Hub
+    renderHubMetrics(allPortfolioProjects);
+
+    // Renderizar Tarjetas de Acceso Rápido
+    renderHubQuickAccess(allPortfolioProjects);
+
+    // Poblar dropdowns de temas únicos
+    const themes = Array.from(new Set(allPortfolioProjects.map(p => p.theme).filter(Boolean))).sort();
+    
+    const themeSelectModal = document.getElementById('portfolio-filter-theme');
+    if (themeSelectModal) {
+      const cur = themeSelectModal.value;
+      themeSelectModal.innerHTML = '<option value="">Todos los Temas</option>';
       themes.forEach(t => {
         const opt = document.createElement('option');
         opt.value = t;
         opt.textContent = t;
-        themeSelect.appendChild(opt);
+        themeSelectModal.appendChild(opt);
       });
-      themeSelect.value = currentSelectedTheme;
+      themeSelectModal.value = cur;
     }
 
-    applyPortfolioFilters();
+    const themeSelectHub = document.getElementById('hub-filter-theme');
+    if (themeSelectHub) {
+      const cur = themeSelectHub.value;
+      themeSelectHub.innerHTML = '<option value="">Todos los Temas</option>';
+      themes.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        themeSelectHub.appendChild(opt);
+      });
+      themeSelectHub.value = cur;
+    }
+
+    applyPortfolioFilters('modal');
+    applyPortfolioFilters('hub');
   } catch (err) {
     console.error('Error in renderPortfolio:', err);
   }
 }
 
-function applyPortfolioFilters() {
-  const search = (document.getElementById('portfolio-filter-search')?.value || '').toLowerCase().trim();
-  const theme = document.getElementById('portfolio-filter-theme')?.value || '';
-  const diff = document.getElementById('portfolio-filter-difficulty')?.value || '';
-  const status = document.getElementById('portfolio-filter-status')?.value || '';
+function renderHubMetrics(projects) {
+  const total = projects.length;
+  const active = projects.filter(p => p.status === 'En Curso' || p.active_sprint_name).length;
+  const completed = projects.filter(p => p.status === 'Terminado').length;
+  
+  let totalTasks = 0;
+  let completedTasks = 0;
+  projects.forEach(p => {
+    totalTasks += (p.total_tasks || 0);
+    completedTasks += (p.completed_tasks || 0);
+  });
+
+  const overallPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  const elTotal = document.getElementById('hub-metric-total-projects');
+  if (elTotal) elTotal.textContent = total;
+
+  const elActive = document.getElementById('hub-metric-active-projects');
+  if (elActive) elActive.textContent = active;
+
+  const elCompleted = document.getElementById('hub-metric-completed-projects');
+  if (elCompleted) elCompleted.textContent = completed;
+
+  const elProgress = document.getElementById('hub-metric-overall-progress');
+  if (elProgress) elProgress.textContent = `${overallPct}%`;
+
+  const elRatio = document.getElementById('hub-metric-tasks-ratio');
+  if (elRatio) elRatio.textContent = `${completedTasks}/${totalTasks} tareas completadas`;
+}
+
+function renderHubQuickAccess(projects) {
+  const container = document.getElementById('hub-quick-access-container');
+  if (!container) return;
+
+  // Seleccionar proyectos destacados o recientes (PJ-67, PJ-65, PJ-00 o los que tengan más tareas/progreso)
+  const keyIds = [67, 65, 0, 4, 1, 2];
+  let featured = [];
+  keyIds.forEach(id => {
+    const found = projects.find(p => p.id === id);
+    if (found && !featured.includes(found)) featured.push(found);
+  });
+
+  // Completar hasta 4 si faltan
+  for (const p of projects) {
+    if (featured.length >= 4) break;
+    if (!featured.includes(p)) featured.push(p);
+  }
+
+  container.innerHTML = '';
+  featured.forEach(p => {
+    const col = document.createElement('div');
+    col.className = 'col-md-3 col-sm-6';
+
+    const starCount = Math.max(1, Math.min(5, p.difficulty || 3));
+    const starsStr = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+    const pct = p.progress_percent || 0;
+
+    let statusBadge = 'bg-secondary-subtle text-secondary';
+    if (p.status === 'Terminado') statusBadge = 'bg-success-subtle text-success border border-success-subtle';
+    else if (p.status === 'En Curso') statusBadge = 'bg-primary-subtle text-primary border border-primary-subtle';
+    else if (p.status === 'Planeación') statusBadge = 'bg-warning-subtle text-warning border border-warning-subtle';
+
+    col.innerHTML = `
+      <div class="card p-3 border shadow-sm bg-body h-100 hub-quick-card" style="cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-body-secondary text-body border font-monospace">PJ-${String(p.id).padStart(2, '0')}</span>
+          <span class="badge ${statusBadge}">${escapeHtml(p.status || 'Planeación')}</span>
+        </div>
+        <h6 class="fw-bold text-body text-truncate mb-1" title="${escapeHtml(p.name)}">${escapeHtml(p.name)}</h6>
+        <p class="small text-muted text-truncate mb-2" style="font-size: 12px;">${escapeHtml(p.theme || 'General')} • <span class="portfolio-stars">${starsStr}</span></p>
+        <div class="mt-auto pt-2 border-top">
+          <div class="d-flex justify-content-between small text-muted mb-1" style="font-size: 11px;">
+            <span>Progreso</span>
+            <span class="font-monospace fw-semibold">${pct}%</span>
+          </div>
+          <div class="progress" style="height: 5px; background: var(--border-subtle);">
+            <div class="progress-bar ${pct === 100 ? 'bg-success' : 'bg-primary'}" style="width: ${pct}%"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    col.querySelector('.hub-quick-card')?.addEventListener('click', async () => {
+      await switchProject(p.id);
+      document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.jira-tab[data-tab="board"]')?.classList.add('active');
+      switchTab('board');
+    });
+
+    container.appendChild(col);
+  });
+}
+
+function applyPortfolioFilters(target = 'hub') {
+  const isModal = target === 'modal';
+  const prefix = isModal ? 'portfolio' : 'hub';
+
+  const search = (document.getElementById(`${prefix}-filter-search`)?.value || '').toLowerCase().trim();
+  const theme = document.getElementById(`${prefix}-filter-theme`)?.value || '';
+  const diff = document.getElementById(`${prefix}-filter-difficulty`)?.value || '';
+  const status = document.getElementById(`${prefix}-filter-status`)?.value || '';
 
   let filtered = allPortfolioProjects.filter(p => {
     if (search) {
@@ -1430,11 +1641,12 @@ function applyPortfolioFilters() {
     return true;
   });
 
-  renderPortfolioRows(filtered);
+  renderPortfolioRows(filtered, target);
 }
 
-function renderPortfolioRows(projects) {
-  const tbody = document.getElementById('portfolio-table-body');
+function renderPortfolioRows(projects, target = 'hub') {
+  const tbodyId = (target === 'modal') ? 'portfolio-table-body' : 'hub-portfolio-table-body';
+  const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
 
   if (projects.length === 0) {
@@ -1476,6 +1688,63 @@ function renderPortfolioRows(projects) {
         </div>
         ${p.description ? `<div class="small text-muted text-truncate" style="max-width: 320px;" title="${escapeHtml(p.description)}">${escapeHtml(p.description)}</div>` : ''}
       </td>
+      <td>
+        ${p.theme ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-1">${escapeHtml(p.theme)}</span>` : '<span class="text-muted small">—</span>'}
+        ${p.axis ? `<span class="badge bg-light text-secondary border small">${escapeHtml(p.axis)}</span>` : ''}
+      </td>
+      <td>
+        <span class="portfolio-stars" title="${starCount} de 5 estrellas">${starsStr}</span>
+      </td>
+      <td>
+        <span class="badge ${statusClass}">${escapeHtml(p.status || 'Planeación')}</span>
+      </td>
+      <td>
+        <div class="d-flex align-items-center gap-2">
+          <div class="progress flex-grow-1 portfolio-progress-bar" style="background: var(--border-subtle); height: 6px;">
+            <div class="progress-bar ${pct === 100 ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${pct}%"></div>
+          </div>
+          <span class="small text-muted font-monospace" style="min-width: 45px;">${completed}/${total}</span>
+        </div>
+      </td>
+      <td>
+        <span class="small font-monospace ${p.last_bitacora_date ? 'text-primary fw-medium' : 'text-muted'}">${escapeHtml(bitacoraDate)}</span>
+      </td>
+      <td class="text-end">
+        <div class="d-flex justify-content-end gap-1">
+          <button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-portfolio-edit" title="Editar proyecto">
+            Editar
+          </button>
+          <button class="btn btn-sm btn-outline-primary py-0 px-2 btn-portfolio-open" title="Abrir tablero">
+            Abrir
+          </button>
+        </div>
+      </td>
+    `;
+
+    tr.querySelector('.btn-portfolio-edit')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openEditProjectModal(p);
+    });
+
+    const openProject = async () => {
+      if (portfolioModalInstance) portfolioModalInstance.hide();
+      document.getElementById('project-selector').value = p.id;
+      await switchProject(p.id);
+      document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.jira-tab[data-tab="board"]')?.classList.add('active');
+      switchTab('board');
+    };
+
+    tr.querySelector('.btn-portfolio-open')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openProject();
+    });
+
+    tr.querySelector('.project-link-title')?.addEventListener('click', openProject);
+
+    tbody.appendChild(tr);
+  });
+}
       <td>
         ${p.theme ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-1">${escapeHtml(p.theme)}</span>` : '<span class="text-muted small">—</span>'}
         ${p.axis ? `<span class="badge bg-light text-secondary border small">${escapeHtml(p.axis)}</span>` : ''}
