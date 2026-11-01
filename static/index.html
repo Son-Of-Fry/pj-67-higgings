@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Higgings — AI-Native Agile & MCP Platform</title>
-  
+
   <!-- Bootstrap 5 Local -->
   <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/static/css/style.css">
@@ -14,35 +15,51 @@
   <script src="/static/vendor/marked.min.js"></script>
   <script src="/static/vendor/mermaid.min.js"></script>
 </head>
+
 <body>
 
   <!-- Topbar Principal estilo Jira -->
   <header class="jira-topbar">
     <div class="jira-logo-box">
-      <div class="jira-logo-badge" id="btn-brand-home" style="cursor: pointer;" title="Ir al Inicio / Portafolio Global">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z"/></svg>
+      <div class="jira-logo-badge" id="btn-brand-home" style="cursor: pointer;"
+        title="Ir al Inicio / Portafolio Global">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+          <path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z" />
+        </svg>
       </div>
-      <span class="jira-brand-name" id="brand-name-home" style="cursor: pointer;" title="Ir al Inicio / Portafolio Global">Higgings</span>
-      
+      <span class="jira-brand-name" id="brand-name-home" style="cursor: pointer;"
+        title="Ir al Inicio / Portafolio Global">Higgings</span>
+
       <!-- Selector de Proyecto -->
       <select id="project-selector" class="project-selector-dropdown ms-2"></select>
       <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
-      <button id="btn-home-portfolio" class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1" title="Inicio / Portafolio General">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <button id="btn-home-portfolio"
+        class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1"
+        title="Inicio / Portafolio General">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
         <span>Inicio</span>
       </button>
     </div>
 
     <!-- Barra de Búsqueda Centrada -->
     <div class="jira-search-bar">
-      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search tasks, docs, keys..." autocomplete="off">
+      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search tasks, docs, keys..."
+        autocomplete="off">
     </div>
 
     <!-- Acciones Derecha (Theme Toggle) -->
     <div class="d-flex align-items-center gap-2">
       <!-- Toggle Modo Claro / Oscuro -->
-      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Alternar Modo Claro / Oscuro">
+      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+        title="Alternar Modo Claro / Oscuro">
         <span id="theme-text" class="small fw-semibold">Tema</span>
       </button>
     </div>
@@ -52,17 +69,22 @@
   <section class="jira-subheader" id="project-subheader">
     <div class="project-title-row">
       <div class="project-heading">
-        <h1 id="current-project-title" class="project-name-text" title="Clic para editar nombre y URL de GitHub" style="cursor: pointer;">PJ-00 Tutorial</h1>
+        <h1 id="current-project-title" class="project-name-text" title="Clic para editar nombre y URL de GitHub"
+          style="cursor: pointer;">PJ-00 Tutorial</h1>
         <span id="active-sprint-badge" class="badge bg-secondary-subtle text-secondary-emphasis border px-2 py-1 fs-7">
           Sprint 1
         </span>
       </div>
-      
+
       <div class="d-flex align-items-center gap-2">
         <!-- Direct Link to GitHub Repository -->
-        <a id="project-github-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 py-1 px-2.5" style="border-radius: 6px; text-decoration: none;" title="Abrir repositorio en GitHub (o clic para configurar)">
+        <a id="project-github-link" href="#" target="_blank" rel="noopener noreferrer"
+          class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 py-1 px-2.5"
+          style="border-radius: 6px; text-decoration: none;"
+          title="Abrir repositorio en GitHub (o clic para configurar)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
           </svg>
           <span id="project-github-label" class="small fw-semibold">GitHub</span>
           <span class="small opacity-50">↗</span>
@@ -91,19 +113,25 @@
       <!-- VISTA INICIO / PORTAFOLIO GLOBAL (LANDING VIEW) -->
       <div id="view-portfolio-hub" class="view-panel active p-4" style="overflow-y: auto; height: 100%;">
         <div class="container-fluid" style="max-width: 1400px;">
-          
+
           <!-- Encabezado del Hub -->
           <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
             <div>
               <h2 class="fs-4 fw-bold mb-1 d-flex align-items-center gap-2">
                 <span>Centro de Proyectos</span>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">Higgings Platform</span>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">Higgings
+                  Platform</span>
               </h2>
-              <span class="text-muted small">Supervisión, salud y flujo ágil de todo el catálogo de proyectos y modelos de IA.</span>
+              <span class="text-muted small">Supervisión, salud y flujo ágil de todo el catálogo de proyectos y modelos
+                de IA.</span>
             </div>
             <div class="d-flex align-items-center gap-2">
-              <button id="btn-hub-new-project" class="btn btn-sm btn-primary py-1.5 px-3 d-flex align-items-center gap-1 shadow-sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <button id="btn-hub-new-project"
+                class="btn btn-sm btn-primary py-1.5 px-3 d-flex align-items-center gap-1 shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 <span>Nuevo Proyecto</span>
               </button>
             </div>
@@ -116,7 +144,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <span class="text-muted small fw-semibold text-uppercase">Total Proyectos</span>
                   <div class="badge bg-primary-subtle text-primary p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
                   </div>
                 </div>
                 <div class="fs-3 fw-bold mt-2" id="hub-metric-total-projects">0</div>
@@ -128,7 +158,10 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <span class="text-muted small fw-semibold text-uppercase">En Curso / Activos</span>
                   <div class="badge bg-warning-subtle text-warning p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
                   </div>
                 </div>
                 <div class="fs-3 fw-bold mt-2 text-warning-emphasis" id="hub-metric-active-projects">0</div>
@@ -140,7 +173,10 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <span class="text-muted small fw-semibold text-uppercase">Terminados</span>
                   <div class="badge bg-success-subtle text-success p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
                   </div>
                 </div>
                 <div class="fs-3 fw-bold mt-2 text-success-emphasis" id="hub-metric-completed-projects">0</div>
@@ -152,7 +188,11 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <span class="text-muted small fw-semibold text-uppercase">Progreso Global</span>
                   <div class="badge bg-info-subtle text-info p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
                   </div>
                 </div>
                 <div class="fs-3 fw-bold mt-2 text-info-emphasis" id="hub-metric-overall-progress">0%</div>
@@ -164,7 +204,11 @@
           <!-- Acceso Rápido a Proyectos Recientes / Clave -->
           <div class="mb-4">
             <h5 class="fs-6 fw-bold mb-3 d-flex align-items-center gap-1.5 text-uppercase text-muted">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                </polygon>
+              </svg>
               <span>Acceso Rápido / Proyectos Clave</span>
             </h5>
             <div class="row g-3" id="hub-quick-access-container">
@@ -176,7 +220,12 @@
           <div class="mb-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
               <h5 class="fs-6 fw-bold mb-0 d-flex align-items-center gap-1.5 text-uppercase text-muted">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
                 <span>Catálogo Completo de Proyectos</span>
               </h5>
               <span id="hub-portfolio-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
@@ -186,7 +235,8 @@
             <div class="card p-2.5 mb-3 border shadow-sm bg-body-tertiary">
               <div class="row g-2 align-items-center">
                 <div class="col-md-4">
-                  <input type="text" id="hub-filter-search" class="form-control form-control-sm" placeholder="Buscar por clave, nombre o tema...">
+                  <input type="text" id="hub-filter-search" class="form-control form-control-sm"
+                    placeholder="Buscar por clave, nombre o tema...">
                 </div>
                 <div class="col-md-3">
                   <select id="hub-filter-theme" class="form-select form-select-sm">
@@ -257,8 +307,10 @@
             </div>
             <div class="d-flex gap-2">
               <button id="btn-edit-readme" class="btn btn-sm btn-outline-primary py-1 px-3">Editar Readme</button>
-              <button id="btn-save-readme" class="btn btn-sm btn-primary py-1 px-3" style="display:none;">Guardar Cambios</button>
-              <button id="btn-cancel-readme" class="btn btn-sm btn-outline-secondary py-1 px-3" style="display:none;">Cancelar</button>
+              <button id="btn-save-readme" class="btn btn-sm btn-primary py-1 px-3" style="display:none;">Guardar
+                Cambios</button>
+              <button id="btn-cancel-readme" class="btn btn-sm btn-outline-secondary py-1 px-3"
+                style="display:none;">Cancelar</button>
             </div>
           </div>
 
@@ -269,8 +321,10 @@
 
           <!-- Modo Edición -->
           <div id="readme-edit-container" style="display:none;">
-            <div class="form-text small text-muted mb-2">Escribe en Markdown estándar (títulos, listas, código, enlaces). También editable desde agentes MCP.</div>
-            <textarea id="readme-editor-textarea" class="form-control font-monospace mb-3" rows="18" placeholder="# Titulo del proyecto..."></textarea>
+            <div class="form-text small text-muted mb-2">Escribe en Markdown estándar (títulos, listas, código,
+              enlaces). También editable desde agentes MCP.</div>
+            <textarea id="readme-editor-textarea" class="form-control font-monospace mb-3" rows="18"
+              placeholder="# Titulo del proyecto..."></textarea>
           </div>
         </div>
       </div>
@@ -281,9 +335,11 @@
           <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
               <h3 id="bitacora-header-title" class="fs-5 fw-bold mb-0">Bitácora del Proyecto</h3>
-              <span class="text-muted small">Registro interactivo de actividades y aprendizajes en celdas Markdown tipo Notebook.</span>
+              <span class="text-muted small">Registro interactivo de actividades y aprendizajes en celdas Markdown tipo
+                Notebook.</span>
             </div>
-            <button id="btn-add-bitacora-entry" class="btn btn-sm btn-primary py-1 px-3 d-flex align-items-center gap-1">
+            <button id="btn-add-bitacora-entry"
+              class="btn btn-sm btn-primary py-1 px-3 d-flex align-items-center gap-1">
               + Nueva Entrada
             </button>
           </div>
@@ -298,7 +354,8 @@
               <div class="row g-2 mb-2">
                 <div class="col-md-8">
                   <label class="form-label small fw-bold mb-1">Título de la entrada / Hito:</label>
-                  <input type="text" id="new-bitacora-title" class="form-control form-control-sm" placeholder="Ej. Integración DVC + MLflow & Modelado Fase 2">
+                  <input type="text" id="new-bitacora-title" class="form-control form-control-sm"
+                    placeholder="Ej. Integración DVC + MLflow & Modelado Fase 2">
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-bold mb-1">Fecha:</label>
@@ -359,7 +416,8 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h3 class="fs-5 fw-bold mb-1">Métricas Generales del Proyecto & Progreso Scrum</h3>
-              <p class="text-muted small mb-0">Monitoreo de tareas totales, velocidad de sprint, distribución por estado y prioridades.</p>
+              <p class="text-muted small mb-0">Monitoreo de tareas totales, velocidad de sprint, distribución por estado
+                y prioridades.</p>
             </div>
             <button id="btn-refresh-metrics" class="btn btn-sm btn-outline-secondary">Actualizar</button>
           </div>
@@ -491,16 +549,19 @@
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Tags (separados por coma):</label>
-              <input type="text" id="modal-task-tags" class="form-control form-control-sm" placeholder="Frontend, API, Auth">
+              <input type="text" id="modal-task-tags" class="form-control form-control-sm"
+                placeholder="Frontend, API, Auth">
             </div>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Documentación / Notas Markdown:</label>
-            <textarea id="modal-task-desc" class="form-control font-monospace" rows="6" placeholder="Detalles, checklists y notas técnicas..."></textarea>
+            <textarea id="modal-task-desc" class="form-control font-monospace" rows="6"
+              placeholder="Detalles, checklists y notas técnicas..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
-          <button id="btn-modal-delete-task" class="btn btn-sm btn-outline-danger me-auto" style="display:none;">Eliminar</button>
+          <button id="btn-modal-delete-task" class="btn btn-sm btn-outline-danger me-auto"
+            style="display:none;">Eliminar</button>
           <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button id="btn-modal-save-task" class="btn btn-sm btn-primary">Guardar Tarea</button>
         </div>
@@ -523,11 +584,13 @@
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Título del Release:</label>
-            <input type="text" id="modal-release-title" class="form-control" placeholder="Ej. Lanzamiento Módulo de Reportes">
+            <input type="text" id="modal-release-title" class="form-control"
+              placeholder="Ej. Lanzamiento Módulo de Reportes">
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Notas de Entrega / Changelog (Markdown):</label>
-            <textarea id="modal-release-notes" class="form-control font-monospace" rows="5" placeholder="Detalles de features entregadas, fixes y mejoras..."></textarea>
+            <textarea id="modal-release-notes" class="form-control font-monospace" rows="5"
+              placeholder="Detalles de features entregadas, fixes y mejoras..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
@@ -557,7 +620,8 @@
           <div class="card p-2 mb-3 border shadow-sm bg-body-tertiary">
             <div class="row g-2 align-items-center">
               <div class="col-md-4">
-                <input type="text" id="portfolio-filter-search" class="form-control form-control-sm" placeholder="Buscar por clave, nombre o tema...">
+                <input type="text" id="portfolio-filter-search" class="form-control form-control-sm"
+                  placeholder="Buscar por clave, nombre o tema...">
               </div>
               <div class="col-md-3">
                 <select id="portfolio-filter-theme" class="form-select form-select-sm">
@@ -584,7 +648,8 @@
                 </select>
               </div>
               <div class="col-md-1 text-end">
-                <button id="btn-portfolio-reset-filters" class="btn btn-sm btn-outline-secondary w-100 py-1">Reset</button>
+                <button id="btn-portfolio-reset-filters"
+                  class="btn btn-sm btn-outline-secondary w-100 py-1">Reset</button>
               </div>
             </div>
           </div>
@@ -629,16 +694,19 @@
           <input type="hidden" id="modal-proj-id" value="">
           <div class="mb-3">
             <label class="form-label small fw-bold">Nombre del Proyecto:</label>
-            <input type="text" id="modal-proj-name" class="form-control form-control-sm" placeholder="Ej. PJ-67 Platform">
+            <input type="text" id="modal-proj-name" class="form-control form-control-sm"
+              placeholder="Ej. PJ-67 Platform">
           </div>
           <div class="row g-2 mb-3">
             <div class="col-md-6">
               <label class="form-label small fw-bold">Tema:</label>
-              <input type="text" id="modal-proj-theme" class="form-control form-control-sm" placeholder="Ej. Riesgo de Crédito">
+              <input type="text" id="modal-proj-theme" class="form-control form-control-sm"
+                placeholder="Ej. Riesgo de Crédito">
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Eje:</label>
-              <input type="text" id="modal-proj-axis" class="form-control form-control-sm" placeholder="Ej. Abierto, MLOps, Data">
+              <input type="text" id="modal-proj-axis" class="form-control form-control-sm"
+                placeholder="Ej. Abierto, MLOps, Data">
             </div>
           </div>
           <div class="row g-2 mb-3">
@@ -667,21 +735,27 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                  <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
                 </svg>
               </span>
-              <input type="url" id="modal-proj-github" class="form-control" placeholder="https://github.com/usuario/repo">
+              <input type="url" id="modal-proj-github" class="form-control"
+                placeholder="https://github.com/usuario/repo">
             </div>
-            <div class="form-text small text-muted">Enlace directo para navegar a este repositorio desde la barra superior.</div>
+            <div class="form-text small text-muted">Enlace directo para navegar a este repositorio desde la barra
+              superior.</div>
           </div>
           <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" id="modal-proj-visible" checked>
-            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable superior</label>
-            <div class="form-text small text-muted">Desmarca si quieres ocultar este proyecto del menú desplegable para no saturarlo.</div>
+            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable
+              superior</label>
+            <div class="form-text small text-muted">Desmarca si quieres ocultar este proyecto del menú desplegable para
+              no saturarlo.</div>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Descripción:</label>
-            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="3" placeholder="Propósito del proyecto..."></textarea>
+            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="3"
+              placeholder="Propósito del proyecto..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
@@ -694,4 +768,5 @@
 
   <script src="/static/js/app.js?v=2.6"></script>
 </body>
+
 </html>
