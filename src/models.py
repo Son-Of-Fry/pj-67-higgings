@@ -11,6 +11,7 @@ class ProjectBase(BaseModel):
     theme: Optional[str] = Field("", description="Tema del proyecto (ej: Riesgo de Crédito)")
     axis: Optional[str] = Field("Abierto", description="Eje del proyecto")
     status: Optional[str] = Field("Planeación", description="Estado general (Planeación, En Curso, Terminado, Pausado)")
+    is_visible: Optional[bool] = Field(True, description="Indica si el proyecto es visible en la lista desplegable")
     extra_data: Optional[str] = Field("{}", description="Metadatos adicionales en JSON")
 
 class ProjectCreate(ProjectBase):
@@ -25,6 +26,7 @@ class ProjectUpdate(BaseModel):
     theme: Optional[str] = None
     axis: Optional[str] = None
     status: Optional[str] = None
+    is_visible: Optional[bool] = None
     extra_data: Optional[str] = None
 
 class ProjectReadmeUpdate(BaseModel):

@@ -229,6 +229,7 @@
                       <th style="min-width: 140px;">Tema / Eje</th>
                       <th style="width: 110px;">Dificultad</th>
                       <th style="width: 100px;">Estado</th>
+                      <th style="width: 90px;" class="text-center" title="Visible en lista desplegable">Visible</th>
                       <th style="min-width: 140px;">Progreso</th>
                       <th style="width: 110px;">Última Bitácora</th>
                       <th style="width: 130px;" class="text-end">Acciones</th>
@@ -599,6 +600,7 @@
                     <th style="min-width: 140px;">Tema / Eje</th>
                     <th style="width: 110px;">Dificultad</th>
                     <th style="width: 100px;">Estado</th>
+                    <th style="width: 90px;" class="text-center" title="Visible en lista desplegable">Visible</th>
                     <th style="min-width: 140px;">Progreso</th>
                     <th style="width: 110px;">Última Bitácora</th>
                     <th style="width: 130px;" class="text-end">Acciones</th>
@@ -672,6 +674,11 @@
             </div>
             <div class="form-text small text-muted">Enlace directo para navegar a este repositorio desde la barra superior.</div>
           </div>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="modal-proj-visible" checked>
+            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable superior</label>
+            <div class="form-text small text-muted">Desmarca si quieres ocultar este proyecto del menú desplegable para no saturarlo.</div>
+          </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Descripción:</label>
             <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="3" placeholder="Propósito del proyecto..."></textarea>
@@ -685,6 +692,6 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=2.5"></script>
+  <script src="/static/js/app.js?v=2.6"></script>
 </body>
 </html>

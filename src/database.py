@@ -43,6 +43,7 @@ class Database:
                 theme TEXT DEFAULT '',
                 axis TEXT DEFAULT 'Abierto',
                 status TEXT DEFAULT 'Planeación',
+                is_visible INTEGER DEFAULT 1,
                 extra_data TEXT DEFAULT '{}',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -58,6 +59,7 @@ class Database:
                 ("theme", "TEXT DEFAULT ''"),
                 ("axis", "TEXT DEFAULT 'Abierto'"),
                 ("status", "TEXT DEFAULT 'Planeación'"),
+                ("is_visible", "INTEGER DEFAULT 1"),
                 ("extra_data", "TEXT DEFAULT '{}'")
             ]:
                 if col_name not in existing_cols:
@@ -577,6 +579,7 @@ Bienvenido a la Wiki de documentación interna del proyecto.
                 total = d.get("total_tasks") or 0
                 completed = d.get("completed_tasks") or 0
                 d["progress_percent"] = round((completed / total) * 100) if total > 0 else 0
+                d["is_visible"] = bool(d["is_visible"]) if d.get("is_visible") is not None else True
                 projects.append(d)
             return projects
 
@@ -599,6 +602,7 @@ Bienvenido a la Wiki de documentación interna del proyecto.
             total = d.get("total_tasks") or 0
             completed = d.get("completed_tasks") or 0
             d["progress_percent"] = round((completed / total) * 100) if total > 0 else 0
+            d["is_visible"] = bool(d["is_visible"]) if d.get("is_visible") is not None else True
             return d
 
     def create_project(self, name: str, description: str = "", github_url: str = "", readme_markdown: str = "", difficulty: int = 3, theme: str = "", axis: str = "Abierto", status: str = "Planeación", extra_data: str = "{}") -> Dict[str, Any]:
@@ -636,10 +640,13 @@ Bienvenido a la Wiki de documentación interna del proyecto.
 
         fields = []
         values = []
-        for key in ["name", "description", "github_url", "readme_markdown", "difficulty", "theme", "axis", "status", "extra_data"]:
+        for key in ["name", "description", "github_url", "readme_markdown", "difficulty", "theme", "axis", "status", "is_visible", "extra_data"]:
             if key in kwargs and kwargs[key] is not None:
                 fields.append(f"{key} = ?")
-                values.append(kwargs[key])
+                val = kwargs[key]
+                if key == "is_visible" and isinstance(val, bool):
+                    val = 1 if val else 0
+                values.append(val)
 
         if not fields:
             return current

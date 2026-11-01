@@ -96,6 +96,10 @@ async function loadProjects() {
     sel.appendChild(defaultOpt);
 
     projects.forEach(p => {
+      // Filtrar proyectos ocultos del menú, salvo si es el que está actualmente abierto
+      if (p.is_visible === false && p.id !== currentProjectId) {
+        return;
+      }
       const opt = document.createElement('option');
       opt.value = p.id;
       opt.textContent = formatProjectDisplay(p);
@@ -1400,6 +1404,7 @@ function setupPortfolioActions() {
     const status = document.getElementById('modal-proj-status')?.value || 'Planeación';
     const github_url = document.getElementById('modal-proj-github')?.value.trim();
     const description = document.getElementById('modal-proj-desc')?.value.trim();
+    const is_visible = document.getElementById('modal-proj-visible') ? document.getElementById('modal-proj-visible').checked : true;
 
     if (!name) {
       alert('El nombre del proyecto es obligatorio.');
@@ -1416,6 +1421,7 @@ function setupPortfolioActions() {
           axis,
           difficulty,
           status,
+          is_visible,
           github_url,
           description
         })
@@ -1466,6 +1472,9 @@ function openEditProjectModal(project) {
 
   const descInput = document.getElementById('modal-proj-desc');
   if (descInput) descInput.value = p.description || '';
+
+  const visInput = document.getElementById('modal-proj-visible');
+  if (visInput) visInput.checked = (p.is_visible !== false);
 
   if (projectSettingsModalInstance) projectSettingsModalInstance.show();
 }
@@ -1652,7 +1661,7 @@ function renderPortfolioRows(projects, target = 'hub') {
   if (projects.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" class="text-center py-5 text-muted">
+        <td colspan="9" class="text-center py-5 text-muted">
           No se encontraron proyectos con los filtros aplicados.
         </td>
       </tr>
@@ -1698,62 +1707,10 @@ function renderPortfolioRows(projects, target = 'hub') {
       <td>
         <span class="badge ${statusClass}">${escapeHtml(p.status || 'Planeación')}</span>
       </td>
-      <td>
-        <div class="d-flex align-items-center gap-2">
-          <div class="progress flex-grow-1 portfolio-progress-bar" style="background: var(--border-subtle); height: 6px;">
-            <div class="progress-bar ${pct === 100 ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${pct}%"></div>
-          </div>
-          <span class="small text-muted font-monospace" style="min-width: 45px;">${completed}/${total}</span>
-        </div>
-      </td>
-      <td>
-        <span class="small font-monospace ${p.last_bitacora_date ? 'text-primary fw-medium' : 'text-muted'}">${escapeHtml(bitacoraDate)}</span>
-      </td>
-      <td class="text-end">
-        <div class="d-flex justify-content-end gap-1">
-          <button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-portfolio-edit" title="Editar proyecto">
-            Editar
-          </button>
-          <button class="btn btn-sm btn-outline-primary py-0 px-2 btn-portfolio-open" title="Abrir tablero">
-            Abrir
-          </button>
-        </div>
-      </td>
-    `;
-
-    tr.querySelector('.btn-portfolio-edit')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openEditProjectModal(p);
-    });
-
-    const openProject = async () => {
-      if (portfolioModalInstance) portfolioModalInstance.hide();
-      document.getElementById('project-selector').value = p.id;
-      await switchProject(p.id);
-      document.querySelectorAll('.jira-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('.jira-tab[data-tab="board"]')?.classList.add('active');
-      switchTab('board');
-    };
-
-    tr.querySelector('.btn-portfolio-open')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openProject();
-    });
-
-    tr.querySelector('.project-link-title')?.addEventListener('click', openProject);
-
-    tbody.appendChild(tr);
-  });
-}
-      <td>
-        ${p.theme ? `<span class="badge bg-info-subtle text-info border border-info-subtle me-1">${escapeHtml(p.theme)}</span>` : '<span class="text-muted small">—</span>'}
-        ${p.axis ? `<span class="badge bg-light text-secondary border small">${escapeHtml(p.axis)}</span>` : ''}
-      </td>
-      <td>
-        <span class="portfolio-stars" title="${starCount} de 5 estrellas">${starsStr}</span>
-      </td>
-      <td>
-        <span class="badge ${statusClass}">${escapeHtml(p.status || 'Planeación')}</span>
+      <td class="text-center">
+        <button class="btn btn-sm py-0 px-2 btn-toggle-vis ${p.is_visible !== false ? 'btn-outline-success' : 'btn-outline-secondary'}" style="font-size: 0.75rem;" title="${p.is_visible !== false ? 'Visible en selector superior (clic para ocultar)' : 'Oculto de selector superior (clic para mostrar)'}">
+          ${p.is_visible !== false ? 'Visible' : 'Oculto'}
+        </button>
       </td>
       <td>
         <div class="d-flex align-items-center gap-2">
@@ -1777,6 +1734,25 @@ function renderPortfolioRows(projects, target = 'hub') {
         </div>
       </td>
     `;
+
+    tr.querySelector('.btn-toggle-vis')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const newVis = !(p.is_visible !== false);
+      try {
+        const res = await fetch(`/api/projects/${p.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_visible: newVis })
+        });
+        if (res.ok) {
+          p.is_visible = newVis;
+          await loadProjects();
+          renderPortfolioRows(allPortfolioProjects, target);
+        }
+      } catch (err) {
+        console.error('Error toggling visibility:', err);
+      }
+    });
 
     tr.querySelector('.btn-portfolio-edit')?.addEventListener('click', (e) => {
       e.stopPropagation();
