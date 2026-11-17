@@ -52,3 +52,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Notas y guías personales locales (no públicas)
+readme_rasp.md

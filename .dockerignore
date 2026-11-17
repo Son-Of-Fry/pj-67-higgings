@@ -1,0 +1,42 @@
+# Git y control de versiones
+.git/
+.gitignore
+
+# Entorno y Secretos locales
+.env
+.env.*
+*.key
+*.cert
+*.pem
+
+# Base de datos y datos persistentes locales
+data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Python y entornos virtuales
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# Archivos de sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Agentes locales
+.agents/

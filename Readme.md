@@ -106,16 +106,20 @@ Higgings expone 18 herramientas especializadas a traves del endpoint SSE (`/sse`
 - Arquitectura compatible: AMD64 o ARM64 (Raspberry Pi 4 / 5, servidores Linux, macOS o Windows).
 
 ### Variables de Entorno (.env)
-Copia la plantilla de ejemplo y ajusta los valores segun tu entorno:
+El sistema cuenta con valores predeterminados listos para funcionar sin configuración previa. Si deseas personalizar puertos, tokens o rutas, copia la plantilla `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-Parametros configurables en `.env`:
-- `SQLITE_DB_PATH`: Ruta interna a la base de datos (por defecto: `/data/kanban.db`).
-- `MCP_AUTH_TOKEN`: Token de autorizacion Bearer para clientes MCP externos.
+Parámetros configurables en `.env`:
+- `DATABASE_URL`: Conexión de base de datos (por defecto: `sqlite:////data/kanban.db`).
+- `API_AUTH_TOKEN`: Token de autorización Bearer opcional para clientes MCP externos.
 - `PORT`: Puerto interno de escucha de FastAPI (por defecto: `8000`).
+- `ALLOWED_ORIGINS`: Dominios o IPs permitidas para CORS (por defecto: `*`).
+
+> **Nota sobre `.dockerignore` vs `.env` en tiempo de ejecución:**
+> El archivo `.dockerignore` **solo actúa al compilar la imagen** (`docker build`) para evitar que tu `.env` con contraseñas o tokens quede grabado permanentemente en las capas de la imagen. Al ejecutar el contenedor (`docker run`), tus variables se inyectan dinámicamente desde el directorio local `$(pwd)` usando la bandera `--env-file .env` o mediante Docker Compose.
 
 ### Construccion y Ejecucion del Contenedor
 
@@ -125,12 +129,15 @@ Para construir la imagen Docker localmente:
 docker build -t higgings-platform -f dockerfile .
 ```
 
-Para arrancar el contenedor en segundo plano con persistencia en el directorio local `./data`:
+Para arrancar el contenedor en segundo plano con persistencia y variables montadas desde el directorio local actual (`$(pwd)`):
+
+> **Respaldo y Portabilidad:** Al montar el volumen persistente como `$(pwd)/data`, la base de datos SQLite reside directamente en tu carpeta de trabajo. Esto simplifica los respaldos (basta con copiar o respaldar `./data`), facilita migraciones rápidas y asegura que los datos no se borren si el contenedor se reconstruye o detiene.
 
 ```bash
 docker run -d \
   --name higgings-platform \
   -p 28945:8000 \
+  --env-file .env \
   -v "$(pwd)/data":/data \
   --restart unless-stopped \
   higgings-platform
@@ -156,7 +163,7 @@ Edita el archivo de configuracion `claude_desktop_config.json`:
     "higgings": {
       "url": "http://localhost:28945/sse",
       "headers": {
-        "Authorization": "Bearer super_secret_kanban_token_2026"
+        "Authorization": "Bearer your_secure_mcp_token_here"
       }
     }
   }
@@ -203,7 +210,7 @@ En la configuracion de Cursor (Settings -> Features -> MCP):
 
 Plan de mitigación y endurecimiento (hardening) de seguridad:
 
-1. **Restricción Estricta de CORS:** Limitar `allow_origins` exclusivamente a los orígenes autorizados (`http://localhost:28945` y la IP Tailscale `http://100.67.210.7:28945`), eliminando el comodín abierto para prevenir ataques cross-site desde páginas externas en el navegador.
+1. **Restricción Estricta de CORS:** Limitar `allow_origins` exclusivamente a los orígenes autorizados (`http://localhost:28945` o tu host seguro de red), eliminando el comodín abierto para prevenir ataques cross-site desde páginas externas en el navegador.
 2. **Capa de Autenticación Interna (Zero-Trust):** Activar validación de token Bearer en el middleware de FastAPI para endpoints destructivos (`POST`, `PUT`, `DELETE`) y el servidor MCP, blindando el acceso contra dispositivos no autorizados en la Tailnet.
 3. **Sanitización de Markdown contra XSS:** Integrar `DOMPurify` en el renderizado cliente de Markdown (`marked.parse`) para evitar inyección de scripts almacenados en bitácoras o documentos.
 4. **Principio de Menor Privilegio en Docker:** Crear y declarar un usuario no privilegiado (`USER 1000:1000`) en el Dockerfile, evitando ejecutar el proceso Uvicorn como `root` con acceso de escritura al host.
