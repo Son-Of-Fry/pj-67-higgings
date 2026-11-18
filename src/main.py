@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from src.config import settings
 from src.database import db
 from src.api.routes import router as api_router
@@ -13,6 +13,7 @@ from src.mcp_server import router as mcp_router
 async def lifespan(app: FastAPI):
     # Inicialización de tablas y datos semilla al arrancar el contenedor
     db.init_db()
+    db.ensure_daily_backup()
     yield
 
 app = FastAPI(
@@ -41,11 +42,22 @@ if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
-async def serve_index():
+async def root_redirect():
+    return RedirectResponse(url="/home", status_code=307)
+
+@app.get("/home")
+async def serve_home():
+    home_path = os.path.join(static_dir, "home.html")
+    if os.path.exists(home_path):
+        return FileResponse(home_path)
+    return {"message": "Higgings Platform is running. Home UI not found."}
+
+@app.get("/project/{project_id}")
+async def serve_project(project_id: int):
     index_path = os.path.join(static_dir, "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "PJ-67 Kanban & MCP Server is running. Static UI not found."}
+    return {"message": "Higgings Platform is running. Project UI not found."}
 
 @app.get("/health")
 async def health():

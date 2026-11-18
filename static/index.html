@@ -5,10 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Higgings — AI-Native Agile & MCP Platform</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
 
   <!-- Bootstrap 5 Local -->
   <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=3.5">
 
   <!-- Vendor JS Local -->
   <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -18,86 +19,109 @@
 
 <body>
 
-  <!-- Topbar Principal estilo Jira -->
+  <!-- Topbar Principal -->
   <header class="jira-topbar">
     <div class="jira-logo-box">
-      <div class="jira-logo-badge" id="btn-brand-home" style="cursor: pointer;"
-        title="Ir al Inicio / Portafolio Global">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
-          <path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z" />
-        </svg>
-      </div>
-      <span class="jira-brand-name" id="brand-name-home" style="cursor: pointer;"
-        title="Ir al Inicio / Portafolio Global">Higgings</span>
+      <a href="/home" class="d-flex align-items-center gap-2 text-decoration-none" title="Ir al Inicio / Portafolio Global">
+        <div class="jira-logo-badge">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+            <path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z" />
+          </svg>
+        </div>
+        <span class="jira-brand-name">Higgings</span>
+      </a>
 
       <!-- Selector de Proyecto -->
       <select id="project-selector" class="project-selector-dropdown ms-2"></select>
       <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
-      <button id="btn-home-portfolio"
-        class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1"
+      <a href="/home" id="btn-home-portfolio"
+        class="btn btn-sm btn-outline-primary py-1 px-2 d-flex align-items-center gap-1 ms-1 text-decoration-none"
         title="Inicio / Portafolio General">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
         <span>Inicio</span>
-      </button>
+      </a>
     </div>
 
     <!-- Barra de Búsqueda Centrada -->
     <div class="jira-search-bar">
-      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        stroke-width="2">
+      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8" />
         <path d="m21 21-4.3-4.3" />
       </svg>
-      <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Search tasks, docs, keys..."
-        autocomplete="off">
+      <input type="text" id="jira-search-input" class="jira-search-input" placeholder="Buscar tareas, llaves, responsables..." autocomplete="off">
     </div>
 
-    <!-- Acciones Derecha (Theme Toggle) -->
+    <!-- Acciones Derecha -->
     <div class="d-flex align-items-center gap-2">
-      <!-- Toggle Modo Claro / Oscuro -->
-      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-        title="Alternar Modo Claro / Oscuro">
+      <button id="btn-open-activity" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Ver historial de actividad">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span class="small fw-semibold">Actividad</span>
+      </button>
+      <button id="btn-manage-users" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Administrar catálogo de usuarios">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span class="small fw-semibold">Equipo</span>
+      </button>
+      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Alternar Modo Claro / Oscuro">
         <span id="theme-text" class="small fw-semibold">Tema</span>
       </button>
     </div>
   </header>
 
-  <!-- Subheader con Título y Navegación de Vistas -->
+  <!-- Subheader con Título, Resumen Ejecutivo y Navegación -->
   <section class="jira-subheader" id="project-subheader">
     <div class="project-title-row">
-      <div class="project-heading">
-        <h1 id="current-project-title" class="project-name-text" title="Clic para editar nombre y URL de GitHub"
-          style="cursor: pointer;">PJ-00 Tutorial</h1>
-        <span id="active-sprint-badge" class="badge bg-secondary-subtle text-secondary-emphasis border px-2 py-1 fs-7">
-          Sprint 1
-        </span>
+      <div>
+        <div class="project-heading">
+          <h1 id="current-project-title" class="project-name-text" title="Clic para editar proyecto" style="cursor: pointer;">Cargando proyecto...</h1>
+          <span id="active-sprint-badge" class="badge bg-secondary-subtle text-secondary-emphasis border px-2 py-1 fs-7">
+            Tablero Activo
+          </span>
+        </div>
+        <div id="project-meta-summary" class="small text-muted mt-1"></div>
       </div>
 
       <div class="d-flex align-items-center gap-2">
-        <!-- Direct Link to GitHub Repository -->
+        <button id="btn-edit-current-project" class="btn btn-sm btn-outline-secondary py-1 px-2.5" title="Editar metadatos del proyecto">
+          Editar Proyecto
+        </button>
+        <a id="project-folder-link" href="#" target="_blank" rel="noopener noreferrer"
+          class="btn btn-sm btn-outline-secondary d-none align-items-center gap-1.5 py-1 px-2.5"
+          style="border-radius: 6px; text-decoration: none;"
+          title="Abrir carpeta compartida (SharePoint / Drive)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="small fw-semibold">Carpeta</span>
+        </a>
         <a id="project-github-link" href="#" target="_blank" rel="noopener noreferrer"
           class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5 py-1 px-2.5"
           style="border-radius: 6px; text-decoration: none;"
           title="Abrir repositorio en GitHub (o clic para configurar)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
           </svg>
           <span id="project-github-label" class="small fw-semibold">GitHub</span>
           <span class="small opacity-50">↗</span>
         </a>
-        <span class="badge bg-success-subtle text-success border">● MCP Online</span>
+        <span class="badge bg-success-subtle text-success border">MCP Online</span>
       </div>
     </div>
 
-    <!-- Pestañas de Navegación estilo Jira (Sin iconos / Emojis) -->
+    <!-- Pestañas de Navegación -->
     <nav class="jira-nav-tabs">
-      <div class="jira-tab active" data-tab="home">Home (Readme)</div>
+      <div class="jira-tab" data-tab="home">Home (Readme)</div>
       <div class="jira-tab" data-tab="bitacora">Bitácora</div>
-      <div class="jira-tab" data-tab="board">Tablero (Board)</div>
+      <div class="jira-tab active" data-tab="board">Tablero (Board)</div>
       <div class="jira-tab" data-tab="work-items">Work items (Lista)</div>
       <div class="jira-tab" data-tab="changelog">Releases & Updates</div>
       <div class="jira-tab" data-tab="metrics">Métricas del Proyecto</div>
@@ -106,196 +130,7 @@
 
   <!-- Espacio de Trabajo Principal -->
   <div class="app-workspace">
-
-    <!-- Vista Principal Cambiable -->
     <main class="main-view-container">
-
-      <!-- VISTA INICIO / PORTAFOLIO GLOBAL (LANDING VIEW) -->
-      <div id="view-portfolio-hub" class="view-panel active p-4" style="overflow-y: auto; height: 100%;">
-        <div class="container-fluid" style="max-width: 1400px;">
-
-          <!-- Encabezado del Hub -->
-          <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-            <div>
-              <h2 class="fs-4 fw-bold mb-1 d-flex align-items-center gap-2">
-                <span>Centro de Proyectos</span>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">Higgings
-                  Platform</span>
-              </h2>
-              <span class="text-muted small">Supervisión, salud y flujo ágil de todo el catálogo de proyectos y modelos
-                de IA.</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <button id="btn-hub-new-project"
-                class="btn btn-sm btn-primary py-1.5 px-3 d-flex align-items-center gap-1 shadow-sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>Nuevo Proyecto</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Métricas Globales Rápidas (4 Cards) -->
-          <div class="row g-3 mb-4">
-            <div class="col-md-3 col-sm-6">
-              <div class="card p-3 border shadow-sm bg-body h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="text-muted small fw-semibold text-uppercase">Total Proyectos</span>
-                  <div class="badge bg-primary-subtle text-primary p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                  </div>
-                </div>
-                <div class="fs-3 fw-bold mt-2" id="hub-metric-total-projects">0</div>
-                <span class="small text-muted mt-1">Registrados en base de datos</span>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card p-3 border shadow-sm bg-body h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="text-muted small fw-semibold text-uppercase">En Curso / Activos</span>
-                  <div class="badge bg-warning-subtle text-warning p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  </div>
-                </div>
-                <div class="fs-3 fw-bold mt-2 text-warning-emphasis" id="hub-metric-active-projects">0</div>
-                <span class="small text-muted mt-1">Con desarrollo o sprint abierto</span>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card p-3 border shadow-sm bg-body h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="text-muted small fw-semibold text-uppercase">Terminados</span>
-                  <div class="badge bg-success-subtle text-success p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                  </div>
-                </div>
-                <div class="fs-3 fw-bold mt-2 text-success-emphasis" id="hub-metric-completed-projects">0</div>
-                <span class="small text-muted mt-1">Hitos y entregables listos</span>
-              </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-              <div class="card p-3 border shadow-sm bg-body h-100">
-                <div class="d-flex align-items-center justify-content-between">
-                  <span class="text-muted small fw-semibold text-uppercase">Progreso Global</span>
-                  <div class="badge bg-info-subtle text-info p-2 rounded-circle">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="18" y1="20" x2="18" y2="10"></line>
-                      <line x1="12" y1="20" x2="12" y2="4"></line>
-                      <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                  </div>
-                </div>
-                <div class="fs-3 fw-bold mt-2 text-info-emphasis" id="hub-metric-overall-progress">0%</div>
-                <span class="small text-muted mt-1" id="hub-metric-tasks-ratio">0/0 tareas completadas</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Acceso Rápido a Proyectos Recientes / Clave -->
-          <div class="mb-4">
-            <h5 class="fs-6 fw-bold mb-3 d-flex align-items-center gap-1.5 text-uppercase text-muted">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon
-                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
-                </polygon>
-              </svg>
-              <span>Acceso Rápido / Proyectos Clave</span>
-            </h5>
-            <div class="row g-3" id="hub-quick-access-container">
-              <!-- Cards dinámicas de proyectos recientes -->
-            </div>
-          </div>
-
-          <!-- Portafolio Completo y Filtros -->
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="fs-6 fw-bold mb-0 d-flex align-items-center gap-1.5 text-uppercase text-muted">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="7" height="7" />
-                  <rect x="14" y="3" width="7" height="7" />
-                  <rect x="14" y="14" width="7" height="7" />
-                  <rect x="3" y="14" width="7" height="7" />
-                </svg>
-                <span>Catálogo Completo de Proyectos</span>
-              </h5>
-              <span id="hub-portfolio-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
-            </div>
-
-            <!-- Barra de Filtros -->
-            <div class="card p-2.5 mb-3 border shadow-sm bg-body-tertiary">
-              <div class="row g-2 align-items-center">
-                <div class="col-md-4">
-                  <input type="text" id="hub-filter-search" class="form-control form-control-sm"
-                    placeholder="Buscar por clave, nombre o tema...">
-                </div>
-                <div class="col-md-3">
-                  <select id="hub-filter-theme" class="form-select form-select-sm">
-                    <option value="">Todos los Temas</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <select id="hub-filter-difficulty" class="form-select form-select-sm">
-                    <option value="">Toda Dificultad</option>
-                    <option value="1">1 Estrella (★☆☆☆☆)</option>
-                    <option value="2">2 Estrellas (★★☆☆☆)</option>
-                    <option value="3">3 Estrellas (★★★☆☆)</option>
-                    <option value="4">4 Estrellas (★★★★☆)</option>
-                    <option value="5">5 Estrellas (★★★★★)</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <select id="hub-filter-status" class="form-select form-select-sm">
-                    <option value="">Todos los Estados</option>
-                    <option value="Planeación">Planeación</option>
-                    <option value="En Curso">En Curso</option>
-                    <option value="Terminado">Terminado</option>
-                    <option value="Pausado">Pausado</option>
-                  </select>
-                </div>
-                <div class="col-md-1 text-end">
-                  <button id="btn-hub-reset-filters" class="btn btn-sm btn-outline-secondary w-100 py-1">Reset</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tabla de Portafolio Integrada -->
-            <div class="card border shadow-sm mb-4">
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="hub-portfolio-table">
-                  <thead class="table-light">
-                    <tr class="small text-muted text-uppercase">
-                      <th style="width: 80px;">Clave</th>
-                      <th style="min-width: 240px;">Nombre del Proyecto</th>
-                      <th style="min-width: 140px;">Tema / Eje</th>
-                      <th style="width: 110px;">Dificultad</th>
-                      <th style="width: 100px;">Estado</th>
-                      <th style="width: 90px;" class="text-center" title="Visible en lista desplegable">Visible</th>
-                      <th style="min-width: 140px;">Progreso</th>
-                      <th style="width: 110px;">Última Bitácora</th>
-                      <th style="width: 130px;" class="text-end">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody id="hub-portfolio-table-body">
-                    <!-- Filas dinámicas -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
 
       <!-- 0. VISTA HOME (README MARKDOWN EDITABLE) -->
       <div id="view-home" class="view-panel p-4" style="overflow-y: auto; height: 100%; display: none;">
@@ -307,44 +142,35 @@
             </div>
             <div class="d-flex gap-2">
               <button id="btn-edit-readme" class="btn btn-sm btn-outline-primary py-1 px-3">Editar Readme</button>
-              <button id="btn-save-readme" class="btn btn-sm btn-primary py-1 px-3" style="display:none;">Guardar
-                Cambios</button>
-              <button id="btn-cancel-readme" class="btn btn-sm btn-outline-secondary py-1 px-3"
-                style="display:none;">Cancelar</button>
+              <button id="btn-save-readme" class="btn btn-sm btn-primary py-1 px-3" style="display:none;">Guardar Cambios</button>
+              <button id="btn-cancel-readme" class="btn btn-sm btn-outline-secondary py-1 px-3" style="display:none;">Cancelar</button>
             </div>
           </div>
 
-          <!-- Modo Lectura / Renderizado -->
           <div id="readme-view-container">
             <div id="readme-rendered-content" class="markdown-body p-4 border rounded shadow-sm bg-body"></div>
           </div>
 
-          <!-- Modo Edición -->
           <div id="readme-edit-container" style="display:none;">
-            <div class="form-text small text-muted mb-2">Escribe en Markdown estándar (títulos, listas, código,
-              enlaces). También editable desde agentes MCP.</div>
-            <textarea id="readme-editor-textarea" class="form-control font-monospace mb-3" rows="18"
-              placeholder="# Titulo del proyecto..."></textarea>
+            <div class="form-text small text-muted mb-2">Escribe en Markdown estándar. También editable desde clientes MCP.</div>
+            <textarea id="readme-editor-textarea" class="form-control font-monospace mb-3" rows="18" placeholder="# Titulo del proyecto..."></textarea>
           </div>
         </div>
       </div>
 
-      <!-- 0.1 VISTA BITÁCORA (NOTEBOOK MARKDOWN INTERACTIVO) -->
+      <!-- 0.1 VISTA BITÁCORA -->
       <div id="view-bitacora" class="view-panel p-4" style="overflow-y: auto; height: 100%; display:none;">
         <div class="container" style="max-width: 920px;">
           <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <div>
               <h3 id="bitacora-header-title" class="fs-5 fw-bold mb-0">Bitácora del Proyecto</h3>
-              <span class="text-muted small">Registro interactivo de actividades y aprendizajes en celdas Markdown tipo
-                Notebook.</span>
+              <span class="text-muted small">Registro interactivo de actividades y avances en celdas Markdown.</span>
             </div>
-            <button id="btn-add-bitacora-entry"
-              class="btn btn-sm btn-primary py-1 px-3 d-flex align-items-center gap-1">
+            <button id="btn-add-bitacora-entry" class="btn btn-sm btn-primary py-1 px-3 d-flex align-items-center gap-1">
               + Nueva Entrada
             </button>
           </div>
 
-          <!-- Formulario colapsable para nueva entrada -->
           <div id="new-bitacora-entry-card" class="card mb-4 border shadow-sm" style="display:none;">
             <div class="card-header py-2 d-flex justify-content-between align-items-center bg-body-tertiary">
               <span class="small fw-bold">Redactar Nueva Entrada de Bitácora</span>
@@ -354,8 +180,7 @@
               <div class="row g-2 mb-2">
                 <div class="col-md-8">
                   <label class="form-label small fw-bold mb-1">Título de la entrada / Hito:</label>
-                  <input type="text" id="new-bitacora-title" class="form-control form-control-sm"
-                    placeholder="Ej. Integración DVC + MLflow & Modelado Fase 2">
+                  <input type="text" id="new-bitacora-title" class="form-control form-control-sm" placeholder="Ej. Avance semanal de integración">
                 </div>
                 <div class="col-md-4">
                   <label class="form-label small fw-bold mb-1">Fecha:</label>
@@ -373,35 +198,56 @@
             </div>
           </div>
 
-          <!-- Contenedor dinámico de celdas / bloques de bitácora -->
           <div id="bitacora-entries-list" class="d-flex flex-column gap-3 mb-5"></div>
         </div>
       </div>
 
       <!-- 1. VISTA BOARD (KANBAN CON BACKLOG INTEGRADO) -->
-      <div id="view-board" class="view-panel h-100" style="display:none;">
+      <div id="view-board" class="view-panel h-100" style="display:flex; flex-direction: column;">
+        <div id="board-filter-bar" class="px-4 py-2 border-bottom bg-body-tertiary d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="small fw-semibold text-muted text-uppercase">Filtros:</span>
+            <select id="board-filter-phase" class="form-select form-select-sm" style="width:auto; min-width:155px;" title="Filtrar por etapa o ciclo">
+              <option value="">Todas las etapas</option>
+            </select>
+            <select id="board-filter-priority" class="form-select form-select-sm" style="width:auto; min-width:145px;" title="Filtrar por prioridad">
+              <option value="">Todas las prioridades</option>
+              <option value="urgent">Urgente</option>
+              <option value="high">Alta</option>
+              <option value="medium">Media</option>
+              <option value="low">Baja</option>
+            </select>
+            <select id="board-filter-assignee" class="form-select form-select-sm" style="width:auto; min-width:155px;" title="Filtrar por responsable">
+              <option value="">Todos los responsables</option>
+            </select>
+            <select id="board-filter-tag" class="form-select form-select-sm" style="width:auto; min-width:135px;" title="Filtrar por etiqueta">
+              <option value="">Todos los tags</option>
+            </select>
+            <button type="button" id="btn-board-clear-filters" class="btn btn-sm btn-link text-decoration-none p-0 ms-1 d-none">Limpiar filtros</button>
+          </div>
+          <div id="board-filter-summary" class="small text-muted"></div>
+        </div>
         <div id="board-columns-container" class="jira-board-viewport"></div>
       </div>
 
-      <!-- 2. VISTA WORK ITEMS (LISTA JERÁRQUICA POR FASES) -->
+      <!-- 2. VISTA WORK ITEMS (LISTA JERÁRQUICA POR ETAPAS) -->
       <div id="view-work-items" class="view-panel p-4" style="display:none;">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <div>
             <h3 class="fs-5 fw-bold mb-1">Work items</h3>
-            <p class="text-muted small mb-0">Lista jerárquica organizada por fases de desarrollo.</p>
+            <p class="text-muted small mb-0">Lista jerárquica organizada por etapas / mejoras y estado real.</p>
           </div>
           <button id="btn-add-work-item" class="btn btn-sm btn-outline-primary">+ Add Item</button>
         </div>
         <div id="work-items-container" class="work-items-viewport p-0"></div>
       </div>
 
-
       <!-- 4. VISTA RELEASES & UPDATES -->
       <div id="view-changelog" class="view-panel p-4" style="display:none;">
         <div class="container" style="max-width: 840px;">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h3 class="fs-5 fw-bold mb-1">Releases & Sprint Retrospectives</h3>
+              <h3 class="fs-5 fw-bold mb-1">Releases & Entregables</h3>
               <p class="text-muted small mb-0">Registro histórico de versiones entregadas.</p>
             </div>
             <button id="btn-add-release" class="btn btn-sm btn-primary">+ Log Release</button>
@@ -415,14 +261,12 @@
         <div class="container" style="max-width: 1040px;">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h3 class="fs-5 fw-bold mb-1">Métricas Generales del Proyecto & Progreso Scrum</h3>
-              <p class="text-muted small mb-0">Monitoreo de tareas totales, velocidad de sprint, distribución por estado
-                y prioridades.</p>
+              <h3 class="fs-5 fw-bold mb-1">Métricas del Proyecto</h3>
+              <p class="text-muted small mb-0">Seguimiento de tareas totales, ideas en backlog, distribución por estado y prioridades.</p>
             </div>
             <button id="btn-refresh-metrics" class="btn btn-sm btn-outline-secondary">Actualizar</button>
           </div>
 
-          <!-- KPI Cards -->
           <div class="row g-3 mb-4">
             <div class="col-md-3">
               <div class="card p-3 border shadow-sm">
@@ -433,9 +277,9 @@
             </div>
             <div class="col-md-3">
               <div class="card p-3 border shadow-sm">
-                <span class="text-muted small fw-semibold text-uppercase">Velocidad del Sprint</span>
-                <span id="metric-velocity" class="fs-2 fw-bold text-body">0 pts</span>
-                <span id="metric-points-breakdown" class="text-muted small">Story points completados</span>
+                <span class="text-muted small fw-semibold text-uppercase">Ideas en Backlog</span>
+                <span id="metric-velocity" class="fs-2 fw-bold text-body">0</span>
+                <span id="metric-points-breakdown" class="text-muted small">0 por hacer en tablero</span>
               </div>
             </div>
             <div class="col-md-3">
@@ -451,33 +295,28 @@
               <div class="card p-3 border shadow-sm">
                 <span class="text-muted small fw-semibold text-uppercase">En Progreso</span>
                 <span id="metric-in-progress" class="fs-2 fw-bold text-info">0</span>
-                <span class="text-muted small">Historias en desarrollo activo</span>
+                <span class="text-muted small">Tareas en ejecución activa</span>
               </div>
             </div>
           </div>
 
-          <!-- Paneles de Distribución -->
           <div class="row g-4 mb-4">
-            <!-- Distribución por Estado / Columnas -->
             <div class="col-md-6">
               <div class="card p-3 border shadow-sm h-100">
                 <h5 class="fs-6 fw-bold mb-3">Distribución por Estado (Columnas)</h5>
                 <div id="status-distribution-container" class="d-flex flex-column gap-3"></div>
               </div>
             </div>
-
-            <!-- Distribución por Prioridad -->
             <div class="col-md-6">
               <div class="card p-3 border shadow-sm h-100">
-                <h5 class="fs-6 fw-bold mb-3">Puntos de Historia por Prioridad</h5>
+                <h5 class="fs-6 fw-bold mb-3">Tareas por Prioridad</h5>
                 <div id="priority-distribution-container" class="d-flex flex-column gap-3"></div>
               </div>
             </div>
           </div>
 
-          <!-- Distribución por Miembro del Equipo -->
           <div class="card p-4 border shadow-sm mb-4">
-            <h5 class="fs-6 fw-bold mb-3">Carga de Trabajo por Responsable / Miembro</h5>
+            <h5 class="fs-6 fw-bold mb-3">Carga de Trabajo por Responsable / Usuario</h5>
             <div id="assignees-distribution-bars" class="d-flex flex-column gap-3"></div>
           </div>
         </div>
@@ -486,7 +325,7 @@
     </main>
   </div>
 
-  <!-- Modal de Creación / Edición de Tareas con Selector de Agente -->
+  <!-- Modal de Creación / Edición de Tareas -->
   <div id="task-modal" class="modal fade" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -497,45 +336,26 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label small fw-bold">Título de la tarea:</label>
-            <input type="text" id="modal-task-title" class="form-control" placeholder="What needs to be done?">
+            <input type="text" id="modal-task-title" class="form-control" placeholder="¿Qué se necesita hacer?">
           </div>
           <div class="row g-2 mb-3">
-            <div class="col-md-3">
-              <label class="form-label small fw-bold">Columna:</label>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Columna / Estado:</label>
               <select id="modal-task-column" class="form-select form-select-sm"></select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-bold">Agente Asignado:</label>
-              <select id="modal-task-assignee" class="form-select form-select-sm">
-                <option value="Claude Agent">Claude Agent</option>
-                <option value="Cursor">Cursor</option>
-                <option value="Figma Agent">Figma Agent</option>
-                <option value="Rich (Humano)">Rich (Humano)</option>
-              </select>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Responsable / Asignado:</label>
+              <select id="modal-task-assignee" class="form-select form-select-sm"></select>
             </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-bold">Story Points:</label>
-              <select id="modal-task-points" class="form-select form-select-sm">
-                <option value="1">1 pt</option>
-                <option value="2">2 pts</option>
-                <option value="3">3 pts</option>
-                <option value="5">5 pts</option>
-                <option value="8">8 pts</option>
-                <option value="13">13 pts</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-bold">Fase (Work item):</label>
-              <select id="modal-task-phase" class="form-select form-select-sm">
-                <option value="Phase 1">Phase 1</option>
-                <option value="Phase 2">Phase 2</option>
-                <option value="Phase 3">Phase 3</option>
-              </select>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Etapa / Fase:</label>
+              <input type="text" id="modal-task-phase" list="modal-phase-suggestions" class="form-control form-control-sm" placeholder="Base, Mejoras, Mantenimiento..." autocomplete="off">
+              <datalist id="modal-phase-suggestions"></datalist>
             </div>
           </div>
           <div class="row g-2 mb-3">
             <div class="col-md-4">
-              <label class="form-label small fw-bold">Sprint / Backlog:</label>
+              <label class="form-label small fw-bold">Aprobación / Ubicación:</label>
               <select id="modal-task-sprint" class="form-select form-select-sm"></select>
             </div>
             <div class="col-md-4">
@@ -549,19 +369,16 @@
             </div>
             <div class="col-md-4">
               <label class="form-label small fw-bold">Tags (separados por coma):</label>
-              <input type="text" id="modal-task-tags" class="form-control form-control-sm"
-                placeholder="Frontend, API, Auth">
+              <input type="text" id="modal-task-tags" class="form-control form-control-sm" placeholder="Frontend, API, Reporte">
             </div>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Documentación / Notas Markdown:</label>
-            <textarea id="modal-task-desc" class="form-control font-monospace" rows="6"
-              placeholder="Detalles, checklists y notas técnicas..."></textarea>
+            <textarea id="modal-task-desc" class="form-control font-monospace" rows="6" placeholder="Detalles, checklists y notas técnicas..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
-          <button id="btn-modal-delete-task" class="btn btn-sm btn-outline-danger me-auto"
-            style="display:none;">Eliminar</button>
+          <button id="btn-modal-delete-task" class="btn btn-sm btn-outline-danger me-auto" style="display:none;">Eliminar</button>
           <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button id="btn-modal-save-task" class="btn btn-sm btn-primary">Guardar Tarea</button>
         </div>
@@ -584,13 +401,11 @@
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Título del Release:</label>
-            <input type="text" id="modal-release-title" class="form-control"
-              placeholder="Ej. Lanzamiento Módulo de Reportes">
+            <input type="text" id="modal-release-title" class="form-control" placeholder="Ej. Lanzamiento Módulo de Reportes">
           </div>
           <div class="mb-3">
             <label class="form-label small fw-bold">Notas de Entrega / Changelog (Markdown):</label>
-            <textarea id="modal-release-notes" class="form-control font-monospace" rows="5"
-              placeholder="Detalles de features entregadas, fixes y mejoras..."></textarea>
+            <textarea id="modal-release-notes" class="form-control font-monospace" rows="5" placeholder="Detalles de features entregadas, fixes y mejoras..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
@@ -601,161 +416,97 @@
     </div>
   </div>
 
-  <!-- Modal Portafolio de Proyectos (Vista Hub Global) -->
-  <div id="portfolio-modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header py-2 px-3 border-bottom">
-          <div class="d-flex align-items-center gap-2">
-            <h5 class="modal-title fs-6 fw-bold mb-0">Portafolio de Proyectos</h5>
-            <span id="portfolio-total-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <button id="btn-portfolio-new-project" class="btn btn-sm btn-primary py-1 px-2.5">+ Nuevo Proyecto</button>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-        </div>
-        <div class="modal-body p-3">
-          <!-- Barra de Filtros -->
-          <div class="card p-2 mb-3 border shadow-sm bg-body-tertiary">
-            <div class="row g-2 align-items-center">
-              <div class="col-md-4">
-                <input type="text" id="portfolio-filter-search" class="form-control form-control-sm"
-                  placeholder="Buscar por clave, nombre o tema...">
-              </div>
-              <div class="col-md-3">
-                <select id="portfolio-filter-theme" class="form-select form-select-sm">
-                  <option value="">Todos los Temas</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <select id="portfolio-filter-difficulty" class="form-select form-select-sm">
-                  <option value="">Toda Dificultad</option>
-                  <option value="1">1 Estrella (★☆☆☆☆)</option>
-                  <option value="2">2 Estrellas (★★☆☆☆)</option>
-                  <option value="3">3 Estrellas (★★★☆☆)</option>
-                  <option value="4">4 Estrellas (★★★★☆)</option>
-                  <option value="5">5 Estrellas (★★★★★)</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <select id="portfolio-filter-status" class="form-select form-select-sm">
-                  <option value="">Todos los Estados</option>
-                  <option value="Planeación">Planeación</option>
-                  <option value="En Curso">En Curso</option>
-                  <option value="Terminado">Terminado</option>
-                  <option value="Pausado">Pausado</option>
-                </select>
-              </div>
-              <div class="col-md-1 text-end">
-                <button id="btn-portfolio-reset-filters"
-                  class="btn btn-sm btn-outline-secondary w-100 py-1">Reset</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tabla de Portafolio -->
-          <div class="card border shadow-sm">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0" id="portfolio-table">
-                <thead class="table-light">
-                  <tr class="small text-muted text-uppercase">
-                    <th style="width: 75px;">Clave</th>
-                    <th style="min-width: 220px;">Nombre del Proyecto</th>
-                    <th style="min-width: 140px;">Tema / Eje</th>
-                    <th style="width: 110px;">Dificultad</th>
-                    <th style="width: 100px;">Estado</th>
-                    <th style="width: 90px;" class="text-center" title="Visible en lista desplegable">Visible</th>
-                    <th style="min-width: 140px;">Progreso</th>
-                    <th style="width: 110px;">Última Bitácora</th>
-                    <th style="width: 130px;" class="text-end">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="portfolio-table-body">
-                  <!-- Filas dinámicas -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Configuración del Proyecto (GitHub Repo & Metadatos) -->
+  <!-- Modal de Configuración / Creación del Proyecto -->
   <div id="project-settings-modal" class="modal fade" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header py-2">
-          <h5 class="modal-title fs-6 fw-bold">Configuración del Proyecto</h5>
+          <h5 id="modal-proj-title" class="modal-title fs-6 fw-bold">Configuración del Proyecto</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="modal-proj-id" value="">
           <div class="mb-3">
             <label class="form-label small fw-bold">Nombre del Proyecto:</label>
-            <input type="text" id="modal-proj-name" class="form-control form-control-sm"
-              placeholder="Ej. PJ-67 Platform">
-          </div>
-          <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Tema:</label>
-              <input type="text" id="modal-proj-theme" class="form-control form-control-sm"
-                placeholder="Ej. Riesgo de Crédito">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Eje:</label>
-              <input type="text" id="modal-proj-axis" class="form-control form-control-sm"
-                placeholder="Ej. Abierto, MLOps, Data">
-            </div>
-          </div>
-          <div class="row g-2 mb-3">
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Dificultad (1 a 5):</label>
-              <select id="modal-proj-difficulty" class="form-select form-select-sm">
-                <option value="1">★☆☆☆☆ (1 - Básica)</option>
-                <option value="2">★★☆☆☆ (2 - Intermedia)</option>
-                <option value="3" selected>★★★☆☆ (3 - Media)</option>
-                <option value="4">★★★★☆ (4 - Avanzada)</option>
-                <option value="5">★★★★★ (5 - Experto)</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">Estado General:</label>
-              <select id="modal-proj-status" class="form-select form-select-sm">
-                <option value="Planeación" selected>Planeación</option>
-                <option value="En Curso">En Curso</option>
-                <option value="Terminado">Terminado</option>
-                <option value="Pausado">Pausado</option>
-              </select>
-            </div>
+            <input type="text" id="modal-proj-name" class="form-control form-control-sm" placeholder="Ej. Plataforma de Reportes Operativos">
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-bold">URL de Repositorio GitHub:</label>
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                </svg>
-              </span>
-              <input type="url" id="modal-proj-github" class="form-control"
-                placeholder="https://github.com/usuario/repo">
+            <label class="form-label small fw-bold">Área:</label>
+            <input type="text" id="modal-proj-area" class="form-control form-control-sm" placeholder="Ej. Riesgo de Crédito, Finanzas">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Interesado:</label>
+              <input type="text" id="modal-proj-stakeholder" class="form-control form-control-sm"
+                placeholder="Ej. Dirección de Riesgos, Sofía Martínez">
             </div>
-            <div class="form-text small text-muted">Enlace directo para navegar a este repositorio desde la barra
-              superior.</div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Responsable del Área (Key User):</label>
+              <input type="text" id="modal-proj-area-key-user" class="form-control form-control-sm"
+                placeholder="Ej. Lic. Mariana Torres, Jefe de Cobranza">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Responsable:</label>
+              <select id="modal-proj-owner" class="form-select form-select-sm"></select>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Fecha de Inicio:</label>
+              <input type="date" id="modal-proj-start-date" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Fecha Límite:</label>
+              <input type="date" id="modal-proj-due-date" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Prioridad:</label>
+              <select id="modal-proj-priority" class="form-select form-select-sm">
+                <option value="Baja">Baja</option>
+                <option value="Media" selected>Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Crítica">Crítica</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Estado General:</label>
+              <select id="modal-proj-status" class="form-select form-select-sm">
+                <option value="En tiempo" selected>En tiempo</option>
+                <option value="En riesgo">En riesgo</option>
+                <option value="Retrasado">Retrasado</option>
+                <option value="Pausado">Pausado</option>
+                <option value="En mantenimiento">En mantenimiento</option>
+                <option value="Completado">Completado</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Siguiente paso:</label>
+              <textarea id="modal-proj-next-step" class="form-control form-control-sm" rows="2" placeholder="Ej. Validar layout de reporte con Key User..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Riesgos / Bloqueos:</label>
+              <textarea id="modal-proj-risks-blockers" class="form-control form-control-sm" rows="2" placeholder="Dejar vacío si no hay bloqueos (si tiene texto muestra alerta !)..."></textarea>
+            </div>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Link a Carpeta (SharePoint / Drive):</label>
+              <input type="url" id="modal-proj-folder" class="form-control form-control-sm" placeholder="https://empresa.sharepoint.com/...">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">URL de Repositorio GitHub:</label>
+              <input type="url" id="modal-proj-github" class="form-control form-control-sm" placeholder="https://github.com/usuario/repo">
+            </div>
           </div>
           <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" id="modal-proj-visible" checked>
-            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable
-              superior</label>
-            <div class="form-text small text-muted">Desmarca si quieres ocultar este proyecto del menú desplegable para
-              no saturarlo.</div>
+            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable superior</label>
           </div>
-          <div class="mb-3">
+          <div class="mb-2">
             <label class="form-label small fw-bold">Descripción:</label>
-            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="3"
-              placeholder="Propósito del proyecto..."></textarea>
+            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="2" placeholder="Propósito del proyecto..."></textarea>
           </div>
         </div>
         <div class="modal-footer py-2">
@@ -766,7 +517,168 @@
     </div>
   </div>
 
-  <script src="/static/js/app.js?v=2.6"></script>
+  <!-- Modal de Gestión de Equipo / Usuarios -->
+  <div id="users-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Gestión de Equipo y Usuarios</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="card p-3 mb-3 border bg-body-tertiary">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span id="user-form-heading" class="small fw-bold text-uppercase text-muted">Agregar Integrante</span>
+              <button type="button" id="btn-user-form-cancel" class="btn btn-sm btn-link text-secondary p-0" style="display:none;">Cancelar edición</button>
+            </div>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Nombre completo:</label>
+                <input type="text" id="user-form-name" class="form-control form-control-sm" placeholder="Ej. Carlos Mendoza">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Correo:</label>
+                <input type="email" id="user-form-email" class="form-control form-control-sm" placeholder="carlos@empresa.com">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">Rol:</label>
+                <input type="text" id="user-form-role" class="form-control form-control-sm" value="Responsable" placeholder="Analista">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">Área:</label>
+                <input type="text" id="user-form-area" class="form-control form-control-sm" placeholder="Riesgos">
+              </div>
+              <div class="col-md-1">
+                <label class="form-label small mb-1">Color:</label>
+                <input type="color" id="user-form-color" class="form-control form-control-sm form-control-color w-100" value="#0c66e4">
+              </div>
+              <div class="col-md-1">
+                <button id="btn-user-form-save" class="btn btn-sm btn-primary w-100">Guardar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive border rounded">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Área</th>
+                  <th class="text-center">Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Registro Histórico de Actividad -->
+  <div id="activity-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Registro Histórico de Actividad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="d-flex flex-wrap gap-1">
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="today">Hoy</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="yesterday">Ayer</button>
+                <button type="button" class="btn btn-sm btn-primary activity-preset-btn" data-range="week">Esta semana</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="month">Últimos 30 días</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="custom">Personalizado</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="all">Todo</button>
+              </div>
+              <div id="activity-custom-range" class="d-flex flex-wrap align-items-center gap-2 d-none">
+                <label class="small text-muted mb-0" for="activity-date-from">Desde</label>
+                <input type="date" id="activity-date-from" class="form-control form-control-sm" style="width:auto;">
+                <label class="small text-muted mb-0" for="activity-date-to">Hasta</label>
+                <input type="date" id="activity-date-to" class="form-control form-control-sm" style="width:auto;">
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <select id="activity-filter-project" class="form-select form-select-sm" style="min-width:190px;">
+                <option value="">Todos los proyectos</option>
+              </select>
+              <select id="activity-filter-entity" class="form-select form-select-sm" style="min-width:160px;">
+                <option value="">Todo tipo de cambio</option>
+                <option value="task">Tareas / Kanban</option>
+                <option value="project">Proyectos / Bloqueos</option>
+                <option value="sprint">Ciclos / Sprints</option>
+                <option value="release">Releases</option>
+                <option value="bitacora">Bitácora</option>
+              </select>
+              <button type="button" id="btn-export-activity-txt" class="btn btn-sm btn-outline-primary text-nowrap">Exportar TXT</button>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-total" class="fs-5 fw-bold">0</div>
+                <div class="text-muted" style="font-size:11px;">Eventos</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-from-backlog" class="fs-5 fw-bold text-primary">0</div>
+                <div class="text-muted" style="font-size:11px;">Backlog -&gt; Tablero</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-completed" class="fs-5 fw-bold text-success">0</div>
+                <div class="text-muted" style="font-size:11px;">Terminadas</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-created" class="fs-5 fw-bold">0</div>
+                <div class="text-muted" style="font-size:11px;">Tareas creadas</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-projects" class="fs-5 fw-bold text-info">0</div>
+                <div class="text-muted" style="font-size:11px;">Cambios proyecto</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-blockers" class="fs-5 fw-bold text-warning">0</div>
+                <div class="text-muted" style="font-size:11px;">Bloqueos reg.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive border rounded">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th>Fecha / Hora</th>
+                  <th>Proyecto</th>
+                  <th>Tipo</th>
+                  <th>Movimiento / Detalle</th>
+                  <th class="text-end">Origen</th>
+                </tr>
+              </thead>
+              <tbody id="activity-events-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/common.js?v=3.6"></script>
+  <script src="/static/js/app.js?v=3.6"></script>
 </body>
 
 </html>

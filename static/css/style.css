@@ -19,6 +19,10 @@
   --jira-blue: #0052cc;
   --jira-blue-hover: #0747a6;
   --jira-blue-subtle: #deebff;
+  --backlog-col-bg: #f3effc;
+  --backlog-col-border: #c4b5fd;
+  --backlog-col-title: #6d28d9;
+  --backlog-card-bg: #faf8ff;
   
   --agent-claude: #d97706;
   --agent-claude-bg: #fef3c7;
@@ -47,6 +51,10 @@
   --jira-blue: #388bfd;
   --jira-blue-hover: #1f6feb;
   --jira-blue-subtle: rgba(56, 139, 253, 0.15);
+  --backlog-col-bg: #181426;
+  --backlog-col-border: rgba(167, 139, 250, 0.45);
+  --backlog-col-title: #c4b5fd;
+  --backlog-card-bg: #201b33;
   
   --agent-claude: #f59e0b;
   --agent-claude-bg: rgba(245, 158, 11, 0.18);
@@ -272,6 +280,25 @@ body {
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 150px);
+}
+
+.jira-column.jira-column-backlog {
+  background: var(--backlog-col-bg);
+  border: 1.5px dashed var(--backlog-col-border);
+}
+
+.jira-column.jira-column-backlog .jira-col-title {
+  color: var(--backlog-col-title);
+}
+
+.jira-column.jira-column-backlog .jira-card {
+  background: var(--backlog-card-bg);
+  border-color: var(--backlog-col-border);
+}
+
+.jira-column.jira-column-backlog .quick-create-input {
+  border-style: dashed;
+  border-color: var(--backlog-col-border);
 }
 
 .jira-col-header {

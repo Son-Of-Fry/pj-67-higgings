@@ -1,7 +1,10 @@
+import sqlite3
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import FileResponse
 from typing import List, Optional
 from src.database import db
 from src.models import (
+    UserResponse, UserCreate, UserUpdate,
     ProjectResponse, ProjectCreate, ProjectUpdate, ProjectReadmeUpdate,
     SprintResponse, SprintCreate, SprintUpdate, SprintBase,
     BoardViewResponse,
@@ -9,7 +12,8 @@ from src.models import (
     DocResponse, DocCreate, DocUpdate, DocBase,
     UpdateLogResponse, UpdateLogCreate, UpdateLogBase,
     ProjectMetricsResponse,
-    BitacoraEntryResponse, BitacoraEntryCreate, BitacoraEntryUpdate
+    BitacoraEntryResponse, BitacoraEntryCreate, BitacoraEntryUpdate,
+    BackupInfoResponse, ActivityListResponse, PhaseRenameRequest
 )
 
 router = APIRouter(prefix="/api", tags=["Kanban & Scrum API"])
@@ -17,6 +21,50 @@ router = APIRouter(prefix="/api", tags=["Kanban & Scrum API"])
 @router.get("/health")
 def healthcheck():
     return {"status": "ok", "service": "PJ-67 Agile Platform & MCP"}
+
+# ==========================================
+# Usuarios / Equipo
+# ==========================================
+
+@router.get("/users", response_model=List[UserResponse])
+def list_users(include_inactive: bool = Query(False)):
+    return db.list_users(include_inactive=include_inactive)
+
+@router.post("/users", response_model=UserResponse)
+def create_user(payload: UserCreate):
+    try:
+        return db.create_user(
+            name=payload.name,
+            email=payload.email or "",
+            role=payload.role or "Miembro",
+            area=payload.area or "",
+            color=payload.color or "#0c66e4",
+            is_active=True if payload.is_active is None else payload.is_active
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="Ya existe un usuario con ese nombre")
+
+@router.put("/users/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, payload: UserUpdate):
+    try:
+        update_data = payload.model_dump(exclude_unset=True)
+        u = db.update_user(user_id, **update_data)
+        if not u:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        return u
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except sqlite3.IntegrityError:
+        raise HTTPException(status_code=409, detail="Ya existe otro usuario con ese nombre")
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    ok = db.delete_user(user_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"status": "success", "message": f"Usuario {user_id} eliminado"}
 
 # ==========================================
 # Proyectos
@@ -32,11 +80,22 @@ def create_project(payload: ProjectCreate):
         name=payload.name,
         description=payload.description or "",
         github_url=payload.github_url or "",
+        folder_url=payload.folder_url or "",
         readme_markdown=payload.readme_markdown or "",
         difficulty=payload.difficulty or 3,
+        priority=payload.priority or "Media",
         theme=payload.theme or "",
+        area=payload.area or payload.theme or "",
         axis=payload.axis or "Abierto",
-        status=payload.status or "Planeación",
+        status=payload.status or "En tiempo",
+        stakeholder=payload.stakeholder or "",
+        area_key_user=payload.area_key_user or "",
+        owner=payload.owner or "",
+        start_date=payload.start_date or "",
+        due_date=payload.due_date or "",
+        next_step=payload.next_step or "",
+        risks_blockers=payload.risks_blockers or "",
+        is_visible=True if payload.is_visible is None else payload.is_visible,
         extra_data=payload.extra_data or "{}"
     )
 
@@ -49,7 +108,7 @@ def get_project(project_id: int):
 
 @router.put("/projects/{project_id}", response_model=ProjectResponse)
 def update_project(project_id: int, payload: ProjectUpdate):
-    update_data = {k: v for k, v in payload.dict().items() if v is not None}
+    update_data = payload.model_dump(exclude_unset=True)
     p = db.update_project(project_id, **update_data)
     if not p:
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
@@ -134,8 +193,9 @@ def create_task(payload: TaskCreate):
         story_points=payload.story_points,
         sprint_id=payload.sprint_id,
         tags=payload.tags or [],
-        assignee=payload.assignee or "Claude Agent",
-        phase=payload.phase or "Phase 1",
+        assignee=payload.assignee or "Sin asignar",
+        assignee_id=payload.assignee_id,
+        phase=payload.phase or "Base",
         dependency=payload.dependency or ""
     )
 
@@ -148,7 +208,7 @@ def get_task(task_id: int):
 
 @router.put("/tasks/{task_id}", response_model=TaskResponse)
 def update_task(task_id: int, payload: TaskUpdate):
-    update_data = {k: v for k, v in payload.dict().items() if v is not None}
+    update_data = payload.model_dump(exclude_unset=True)
     task = db.update_task(task_id, **update_data)
     if not task:
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
@@ -289,3 +349,60 @@ def delete_bitacora_entry(entry_id: int):
     if not success:
         raise HTTPException(status_code=404, detail="Entrada de bitácora no encontrada")
     return {"success": True, "message": f"Entrada {entry_id} eliminada"}
+
+# ==========================================
+# Respaldos Atómicos WAL y Registro Histórico de Actividad
+# ==========================================
+
+@router.get("/backups", response_model=List[BackupInfoResponse])
+def list_backups():
+    return db.list_backups()
+
+@router.post("/backups", response_model=BackupInfoResponse)
+def create_backup():
+    try:
+        return db.create_backup(backup_type="manual")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"No se pudo generar el respaldo: {str(e)}")
+
+@router.get("/backups/{filename}/download")
+def download_backup(filename: str):
+    if "/" in filename or "\\" in filename or ".." in filename or not filename.endswith(".db"):
+        raise HTTPException(status_code=400, detail="Nombre de respaldo inválido")
+    path = db.get_backup_path(filename)
+    if not path:
+        raise HTTPException(status_code=404, detail="Respaldo no encontrado")
+    return FileResponse(
+        path=str(path),
+        media_type="application/octet-stream",
+        filename=path.name,
+    )
+
+@router.get("/activity", response_model=ActivityListResponse)
+def list_activity_logs(
+    project_id: Optional[int] = Query(None),
+    start_iso: Optional[str] = Query(None),
+    end_iso: Optional[str] = Query(None),
+    days: Optional[int] = Query(None, ge=1, le=365),
+    entity_type: Optional[str] = Query(None),
+    action: Optional[str] = Query(None),
+    limit: int = Query(200, ge=1, le=500),
+):
+    return db.list_activity_logs(
+        project_id=project_id,
+        start_iso=start_iso,
+        end_iso=end_iso,
+        days=days,
+        entity_type=entity_type,
+        action=action,
+        limit=limit,
+    )
+
+@router.put("/projects/{project_id}/phases/rename")
+def rename_project_phase(project_id: int, payload: PhaseRenameRequest):
+    old_name = (payload.old_phase or "").strip()
+    new_name = (payload.new_phase or "").strip()
+    if not old_name or not new_name:
+        raise HTTPException(status_code=400, detail="El nombre de etapa no puede estar vacío")
+    updated_count = db.rename_project_phase(project_id, old_name, new_name)
+    return {"success": True, "updated_count": updated_count, "old_phase": old_name, "new_phase": new_name}

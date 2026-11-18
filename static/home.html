@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio / Portafolio — Higgings Platform</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+
+  <!-- Bootstrap 5 Local -->
+  <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <!-- Vendor JS Local -->
+  <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Topbar Principal -->
+  <header class="jira-topbar">
+    <div class="jira-logo-box">
+      <a href="/home" class="d-flex align-items-center gap-2 text-decoration-none">
+        <div class="jira-logo-badge" title="Centro de Proyectos">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white">
+            <path d="M12 2L2 19.5h20L12 2zm0 4.5l6.5 11h-13l6.5-11z" />
+          </svg>
+        </div>
+        <span class="jira-brand-name">Higgings</span>
+      </a>
+
+      <!-- Acceso rápido por selector -->
+      <select id="home-project-jump" class="project-selector-dropdown ms-2" title="Abrir proyecto rápido">
+        <option value="">Ir a proyecto...</option>
+      </select>
+      <button id="btn-add-project" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Nuevo Proyecto">+</button>
+    </div>
+
+    <!-- Barra de Búsqueda Rápida -->
+    <div class="jira-search-bar">
+      <svg class="jira-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+      <input type="text" id="hub-filter-search" class="jira-search-input" placeholder="Buscar por clave, proyecto, interesado o responsable..." autocomplete="off">
+    </div>
+
+    <!-- Acciones Derecha -->
+    <div class="d-flex align-items-center gap-2">
+      <button id="btn-open-activity" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Ver historial de actividad">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <span class="small fw-semibold">Actividad</span>
+      </button>
+      <button id="btn-open-backups" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Respaldos atómicos WAL de la base de datos">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+        </svg>
+        <span class="small fw-semibold">Respaldar BD</span>
+      </button>
+      <button id="btn-manage-users" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Administrar catálogo de usuarios">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span class="small fw-semibold">Equipo</span>
+      </button>
+      <button id="btn-theme-toggle" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Alternar Modo Claro / Oscuro">
+        <span id="theme-text" class="small fw-semibold">Tema</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Espacio de Trabajo Principal -->
+  <div class="app-workspace">
+    <main class="main-view-container p-4" style="overflow-y: auto; height: 100%;">
+      <div class="container-fluid" style="max-width: 1460px;">
+
+        <!-- Encabezado del Hub -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 pb-2 border-bottom">
+          <div>
+            <h2 class="fs-4 fw-bold mb-1 d-flex align-items-center gap-2">
+              <span>Centro de Proyectos</span>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-7">Higgings Platform</span>
+            </h2>
+            <span class="text-muted small">Supervisión ejecutiva, responsables, fechas límite y progreso de todo el portafolio.</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button id="btn-hub-new-project" class="btn btn-sm btn-primary py-1.5 px-3 d-flex align-items-center gap-1 shadow-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Nuevo Proyecto</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Métricas Globales Rápidas (4 Cards) -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3 col-sm-6">
+            <div class="card p-3 border shadow-sm bg-body h-100">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="text-muted small fw-semibold text-uppercase">Total Proyectos</span>
+                <div class="badge bg-primary-subtle text-primary p-2 rounded-circle">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="fs-3 fw-bold mt-2" id="hub-metric-total-projects">0</div>
+              <span class="small text-muted mt-1">Registrados en base de datos</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card p-3 border shadow-sm bg-body h-100">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="text-muted small fw-semibold text-uppercase">En Riesgo / Retraso</span>
+                <div class="badge bg-warning-subtle text-warning p-2 rounded-circle">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="fs-3 fw-bold mt-2 text-warning-emphasis" id="hub-metric-active-projects">0</div>
+              <span class="small text-muted mt-1" id="hub-metric-blocked-count">0 con bloqueos detectados</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card p-3 border shadow-sm bg-body h-100">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="text-muted small fw-semibold text-uppercase">Entregados / Mant.</span>
+                <div class="badge bg-success-subtle text-success p-2 rounded-circle">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="fs-3 fw-bold mt-2 text-success-emphasis" id="hub-metric-completed-projects">0</div>
+              <span class="small text-muted mt-1">Completados o en mantenimiento</span>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card p-3 border shadow-sm bg-body h-100">
+              <div class="d-flex align-items-center justify-content-between">
+                <span class="text-muted small fw-semibold text-uppercase">Progreso Global</span>
+                <div class="badge bg-info-subtle text-info p-2 rounded-circle">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="fs-3 fw-bold mt-2 text-info-emphasis" id="hub-metric-overall-progress">0%</div>
+              <span class="small text-muted mt-1" id="hub-metric-tasks-ratio">0/0 tareas completadas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acceso Rápido a Proyectos Clave / Visibles -->
+        <div class="mb-4">
+          <h5 class="fs-6 fw-bold mb-3 d-flex align-items-center gap-1.5 text-uppercase text-muted">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Acceso Rápido / Proyectos Activos</span>
+          </h5>
+          <div class="row g-3" id="hub-quick-access-container"></div>
+        </div>
+
+        <!-- Portafolio Completo y Filtros -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fs-6 fw-bold mb-0 d-flex align-items-center gap-1.5 text-uppercase text-muted">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+              </svg>
+              <span>Catálogo Completo de Proyectos</span>
+            </h5>
+            <span id="hub-portfolio-count" class="badge bg-secondary-subtle text-secondary border">0 proyectos</span>
+          </div>
+
+          <!-- Barra de Filtros -->
+          <div class="card p-2.5 mb-3 border shadow-sm bg-body-tertiary">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-2">
+                <select id="hub-filter-owner" class="form-select form-select-sm">
+                  <option value="">Todos los Responsables</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select id="hub-filter-area" class="form-select form-select-sm">
+                  <option value="">Todas las Áreas</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select id="hub-filter-priority" class="form-select form-select-sm">
+                  <option value="">Toda Prioridad</option>
+                  <option value="Baja">Baja</option>
+                  <option value="Media">Media</option>
+                  <option value="Alta">Alta</option>
+                  <option value="Crítica">Crítica</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <select id="hub-filter-status" class="form-select form-select-sm">
+                  <option value="">Todos los Estados</option>
+                  <option value="En tiempo">En tiempo</option>
+                  <option value="En riesgo">En riesgo</option>
+                  <option value="Retrasado">Retrasado</option>
+                  <option value="Pausado">Pausado</option>
+                  <option value="En mantenimiento">En mantenimiento</option>
+                  <option value="Completado">Completado</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <div class="form-check form-switch m-0">
+                  <input class="form-check-input" type="checkbox" id="hub-filter-blocked">
+                  <label class="form-check-label small fw-semibold" for="hub-filter-blocked">Con bloqueos</label>
+                </div>
+              </div>
+              <div class="col-md-2 text-end">
+                <button id="btn-hub-reset-filters" class="btn btn-sm btn-outline-secondary w-100 py-1">Limpiar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Portafolio Integrada -->
+          <div class="card border shadow-sm mb-4">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0" id="hub-portfolio-table">
+                <thead class="table-light">
+                  <tr class="small text-muted text-uppercase">
+                    <th style="width: 72px;">Clave</th>
+                    <th style="min-width: 220px;">Proyecto / Siguiente Paso</th>
+                    <th style="min-width: 120px;">Área</th>
+                    <th style="min-width: 145px;">Interesado / Key User</th>
+                    <th style="min-width: 115px;">Responsable</th>
+                    <th style="width: 85px;">Prioridad</th>
+                    <th style="width: 115px;">Estado</th>
+                    <th style="min-width: 120px;">Inicio / Límite</th>
+                    <th style="width: 75px;" class="text-center" title="Visible en selector superior">Visible</th>
+                    <th style="min-width: 110px;">Progreso</th>
+                    <th style="min-width: 195px;" class="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="hub-portfolio-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal de Configuración / Creación del Proyecto -->
+  <div id="project-settings-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 id="modal-proj-title" class="modal-title fs-6 fw-bold">Configuración del Proyecto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="modal-proj-id" value="">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Nombre del Proyecto:</label>
+            <input type="text" id="modal-proj-name" class="form-control form-control-sm" placeholder="Ej. Plataforma de Reportes Operativos">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Área:</label>
+            <input type="text" id="modal-proj-area" class="form-control form-control-sm" placeholder="Ej. Riesgo de Crédito, Finanzas">
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Interesado:</label>
+              <input type="text" id="modal-proj-stakeholder" class="form-control form-control-sm"
+                placeholder="Ej. Dirección de Riesgos, Sofía Martínez">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Responsable del Área (Key User):</label>
+              <input type="text" id="modal-proj-area-key-user" class="form-control form-control-sm"
+                placeholder="Ej. Lic. Mariana Torres, Jefe de Cobranza">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold">Responsable:</label>
+              <select id="modal-proj-owner" class="form-select form-select-sm"></select>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Fecha de Inicio:</label>
+              <input type="date" id="modal-proj-start-date" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Fecha Límite:</label>
+              <input type="date" id="modal-proj-due-date" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Prioridad:</label>
+              <select id="modal-proj-priority" class="form-select form-select-sm">
+                <option value="Baja">Baja</option>
+                <option value="Media" selected>Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Crítica">Crítica</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold">Estado General:</label>
+              <select id="modal-proj-status" class="form-select form-select-sm">
+                <option value="En tiempo" selected>En tiempo</option>
+                <option value="En riesgo">En riesgo</option>
+                <option value="Retrasado">Retrasado</option>
+                <option value="Pausado">Pausado</option>
+                <option value="En mantenimiento">En mantenimiento</option>
+                <option value="Completado">Completado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Siguiente paso:</label>
+              <textarea id="modal-proj-next-step" class="form-control form-control-sm" rows="2" placeholder="Ej. Validar layout de reporte con Key User..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Riesgos / Bloqueos:</label>
+              <textarea id="modal-proj-risks-blockers" class="form-control form-control-sm" rows="2" placeholder="Dejar vacío si no hay bloqueos (si tiene texto muestra alerta !)..."></textarea>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">Link a Carpeta (SharePoint / Drive):</label>
+              <input type="url" id="modal-proj-folder" class="form-control form-control-sm" placeholder="https://empresa.sharepoint.com/...">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small fw-bold">URL de Repositorio GitHub:</label>
+              <input type="url" id="modal-proj-github" class="form-control form-control-sm" placeholder="https://github.com/usuario/repo">
+            </div>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="modal-proj-visible" checked>
+            <label class="form-check-label small fw-bold" for="modal-proj-visible">Mostrar en selector desplegable superior</label>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small fw-bold">Descripción:</label>
+            <textarea id="modal-proj-desc" class="form-control form-control-sm" rows="2" placeholder="Propósito y alcance del proyecto..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button id="btn-modal-save-proj" class="btn btn-sm btn-primary">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Gestión de Equipo / Usuarios -->
+  <div id="users-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Gestión de Equipo y Usuarios</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="card p-3 mb-3 border bg-body-tertiary">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span id="user-form-heading" class="small fw-bold text-uppercase text-muted">Agregar Integrante</span>
+              <button type="button" id="btn-user-form-cancel" class="btn btn-sm btn-link text-secondary p-0" style="display:none;">Cancelar edición</button>
+            </div>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Nombre completo:</label>
+                <input type="text" id="user-form-name" class="form-control form-control-sm" placeholder="Ej. Carlos Mendoza">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small mb-1">Correo:</label>
+                <input type="email" id="user-form-email" class="form-control form-control-sm" placeholder="carlos@empresa.com">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">Rol:</label>
+                <input type="text" id="user-form-role" class="form-control form-control-sm" value="Responsable" placeholder="Analista">
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small mb-1">Área:</label>
+                <input type="text" id="user-form-area" class="form-control form-control-sm" placeholder="Riesgos">
+              </div>
+              <div class="col-md-1">
+                <label class="form-label small mb-1">Color:</label>
+                <input type="color" id="user-form-color" class="form-control form-control-sm form-control-color w-100" value="#0c66e4">
+              </div>
+              <div class="col-md-1">
+                <button id="btn-user-form-save" class="btn btn-sm btn-primary w-100">Guardar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive border rounded">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Área</th>
+                  <th class="text-center">Estado</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Respaldos Atómicos WAL -->
+  <div id="backups-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Respaldos de Base de Datos (SQLite WAL Seguro)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 p-3 border rounded bg-body-tertiary">
+            <div class="small text-muted">
+              <div>Cada respaldo usa <strong>SQLite Online Backup API</strong> para fusionar transacciones activas sin bloquear el servicio.</div>
+              <div>Los respaldos diarios automáticos (<code>kanban_auto_*</code>) conservan los últimos 14 días activos.</div>
+            </div>
+            <button type="button" id="btn-create-manual-backup" class="btn btn-sm btn-primary text-nowrap">Generar respaldo ahora</button>
+          </div>
+          <div id="backup-status-msg" class="alert py-2 small d-none" role="alert"></div>
+          <div class="table-responsive border rounded">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th>Archivo</th>
+                  <th>Tipo</th>
+                  <th>Fecha (Local)</th>
+                  <th>Tamaño</th>
+                  <th class="text-end">Descarga</th>
+                </tr>
+              </thead>
+              <tbody id="backups-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Registro Histórico de Actividad -->
+  <div id="activity-modal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h5 class="modal-title fs-6 fw-bold">Registro Histórico de Actividad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <div class="d-flex flex-wrap gap-1">
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="today">Hoy</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="yesterday">Ayer</button>
+                <button type="button" class="btn btn-sm btn-primary activity-preset-btn" data-range="week">Esta semana</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="month">Últimos 30 días</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="custom">Personalizado</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary activity-preset-btn" data-range="all">Todo</button>
+              </div>
+              <div id="activity-custom-range" class="d-flex flex-wrap align-items-center gap-2 d-none">
+                <label class="small text-muted mb-0" for="activity-date-from">Desde</label>
+                <input type="date" id="activity-date-from" class="form-control form-control-sm" style="width:auto;">
+                <label class="small text-muted mb-0" for="activity-date-to">Hasta</label>
+                <input type="date" id="activity-date-to" class="form-control form-control-sm" style="width:auto;">
+              </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <select id="activity-filter-project" class="form-select form-select-sm" style="min-width:190px;">
+                <option value="">Todos los proyectos</option>
+              </select>
+              <select id="activity-filter-entity" class="form-select form-select-sm" style="min-width:160px;">
+                <option value="">Todo tipo de cambio</option>
+                <option value="task">Tareas / Kanban</option>
+                <option value="project">Proyectos / Bloqueos</option>
+                <option value="sprint">Ciclos / Sprints</option>
+                <option value="release">Releases</option>
+                <option value="bitacora">Bitácora</option>
+              </select>
+              <button type="button" id="btn-export-activity-txt" class="btn btn-sm btn-outline-primary text-nowrap">Exportar TXT</button>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-total" class="fs-5 fw-bold">0</div>
+                <div class="text-muted" style="font-size:11px;">Eventos</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-from-backlog" class="fs-5 fw-bold text-primary">0</div>
+                <div class="text-muted" style="font-size:11px;">Backlog -&gt; Tablero</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-completed" class="fs-5 fw-bold text-success">0</div>
+                <div class="text-muted" style="font-size:11px;">Terminadas</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-created" class="fs-5 fw-bold">0</div>
+                <div class="text-muted" style="font-size:11px;">Tareas creadas</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-projects" class="fs-5 fw-bold text-info">0</div>
+                <div class="text-muted" style="font-size:11px;">Cambios proyecto</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <div class="border rounded p-2 text-center bg-body-tertiary">
+                <div id="act-sum-blockers" class="fs-5 fw-bold text-warning">0</div>
+                <div class="text-muted" style="font-size:11px;">Bloqueos reg.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive border rounded">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr class="small text-muted text-uppercase">
+                  <th>Fecha / Hora</th>
+                  <th>Proyecto</th>
+                  <th>Tipo</th>
+                  <th>Movimiento / Detalle</th>
+                  <th class="text-end">Origen</th>
+                </tr>
+              </thead>
+              <tbody id="activity-events-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/common.js?v=3.4"></script>
+  <script src="/static/js/home.js?v=3.4"></script>
+</body>
+
+</html>

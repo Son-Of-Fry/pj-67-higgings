@@ -10,6 +10,33 @@ router = APIRouter(tags=["MCP Server"])
 
 active_sessions: Dict[str, asyncio.Queue] = {}
 
+_PROJECT_PROPERTIES_SCHEMA = {
+    "name": {"type": "string", "description": "Nombre del proyecto"},
+    "description": {"type": "string", "description": "Descripción general del propósito del proyecto"},
+    "area": {"type": "string", "description": "Área del proyecto (ej. 'Riesgo de Crédito', 'Operaciones')"},
+    "axis": {"type": "string", "description": "Eje estratégico del proyecto"},
+    "priority": {
+        "type": "string",
+        "enum": ["Baja", "Media", "Alta", "Crítica"],
+        "description": "Prioridad del proyecto"
+    },
+    "status": {
+        "type": "string",
+        "enum": ["En tiempo", "En riesgo", "Retrasado", "Pausado", "En mantenimiento", "Completado"],
+        "description": "Estado general del proyecto"
+    },
+    "stakeholder": {"type": "string", "description": "Interesado o área solicitante"},
+    "area_key_user": {"type": "string", "description": "Responsable del Área (Area Key User)"},
+    "owner": {"type": "string", "description": "Responsable asignado del proyecto"},
+    "start_date": {"type": "string", "description": "Fecha de inicio (YYYY-MM-DD)"},
+    "due_date": {"type": "string", "description": "Fecha límite (YYYY-MM-DD)"},
+    "next_step": {"type": "string", "description": "Siguiente paso inmediato para seguimiento"},
+    "risks_blockers": {"type": "string", "description": "Riesgos o bloqueos detectados"},
+    "folder_url": {"type": "string", "description": "URL a la carpeta compartida (SharePoint, Drive, OneDrive)"},
+    "github_url": {"type": "string", "description": "URL al repositorio de GitHub"},
+    "is_visible": {"type": "boolean", "description": "Visible en el selector superior"}
+}
+
 MCP_TOOLS = [
     {
         "name": "list_projects",
@@ -34,24 +61,45 @@ MCP_TOOLS = [
         }
     },
     {
+        "name": "list_users",
+        "description": "Lista los usuarios del equipo registrados en Higgings para asignar tareas o proyectos.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {}
+        }
+    },
+    {
+        "name": "create_user",
+        "description": "Registra un nuevo usuario en el catálogo de equipo de Higgings.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+                "name": {"type": "string", "description": "Nombre completo del usuario"},
+                "email": {"type": "string", "description": "Correo electrónico"},
+                "role": {"type": "string", "description": "Rol (ej. Responsable, Analista, Desarrollador)"},
+                "area": {"type": "string", "description": "Área o departamento"}
+            }
+        }
+    },
+    {
         "name": "create_project",
         "description": "Crea un nuevo proyecto en Higgings con su tablero Kanban estándar y Sprint 1.",
         "inputSchema": {
             "type": "object",
             "required": ["name"],
+            "properties": _PROJECT_PROPERTIES_SCHEMA
+        }
+    },
+    {
+        "name": "update_project",
+        "description": "Actualiza metadatos ejecutivos de un proyecto existente (estado, prioridad, área, responsables, fechas, siguiente paso, bloqueos, enlaces y visibilidad).",
+        "inputSchema": {
+            "type": "object",
+            "required": ["project_id"],
             "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "Nombre del proyecto (ej. 'PJ-68 Data Pipeline')"
-                },
-                "description": {
-                    "type": "string",
-                    "description": "Descripción general del propósito del proyecto"
-                },
-                "github_url": {
-                    "type": "string",
-                    "description": "URL directa al repositorio de GitHub asociado al proyecto"
-                }
+                "project_id": {"type": "integer", "description": "ID del proyecto a actualizar"},
+                **_PROJECT_PROPERTIES_SCHEMA
             }
         }
     },
@@ -104,7 +152,7 @@ MCP_TOOLS = [
     },
     {
         "name": "create_task",
-        "description": "Crea una nueva historia de usuario o tarea Scrum con Story Points, asignado (Rich, Claude, Cursor), fase, prioridad y notas Markdown.",
+        "description": "Crea una nueva historia de usuario o tarea Scrum con Story Points, usuario asignado, fase, prioridad y notas Markdown.",
         "inputSchema": {
             "type": "object",
             "required": ["title"],
@@ -124,7 +172,7 @@ MCP_TOOLS = [
                 },
                 "column_title": {
                     "type": "string",
-                    "description": "Columna destino ('Por Hacer', 'En Progreso', 'En Revisión', 'Terminado'). Por defecto: 'Por Hacer'",
+                    "description": "Columna destino ('Backlog', 'Por Hacer', 'En Progreso', 'En Revisión', 'Terminado'). Por defecto: 'Por Hacer'",
                     "default": "Por Hacer"
                 },
                 "story_points": {
@@ -134,13 +182,13 @@ MCP_TOOLS = [
                 },
                 "assignee": {
                     "type": "string",
-                    "description": "Responsable asignado (ej. 'Rich (Humano)', 'Claude Agent', 'Cursor', 'Figma Agent')",
-                    "default": "Claude Agent"
+                    "description": "Usuario asignado (del catálogo de usuarios o 'Sin asignar')",
+                    "default": "Sin asignar"
                 },
                 "phase": {
                     "type": "string",
-                    "description": "Fase de desarrollo (ej. 'Phase 1', 'Phase 2', 'Phase 3')",
-                    "default": "Phase 1"
+                    "description": "Etapa o fase del proyecto (por defecto 'Base'; ej. 'Base', 'Mejoras', 'Mantenimiento')",
+                    "default": "Base"
                 },
                 "dependency": {
                     "type": "string",
@@ -167,7 +215,7 @@ MCP_TOOLS = [
     },
     {
         "name": "batch_create_tasks",
-        "description": "Crea múltiples tareas en una sola llamada (ideal para que la IA planifique sprints o descomponga épicas en historias).",
+        "description": "Crea múltiples tareas en una sola llamada.",
         "inputSchema": {
             "type": "object",
             "required": ["project_id", "tasks"],
@@ -187,8 +235,8 @@ MCP_TOOLS = [
                             "description": {"type": "string"},
                             "column_title": {"type": "string", "default": "Por Hacer"},
                             "story_points": {"type": "integer", "default": 1},
-                            "assignee": {"type": "string", "default": "Claude Agent"},
-                            "phase": {"type": "string", "default": "Phase 1"},
+                            "assignee": {"type": "string", "default": "Sin asignar"},
+                            "phase": {"type": "string", "default": "Base"},
                             "priority": {"type": "string", "default": "medium"},
                             "tags": {"type": "array", "items": {"type": "string"}}
                         }
@@ -479,21 +527,68 @@ MCP_TOOLS = [
                 }
             }
         }
+    },
+    {
+        "name": "get_activity_log",
+        "description": "Consulta el registro histórico de actividad (qué tareas pasaron de Backlog a sprint o Terminado, cambios de estado en proyectos, bloqueos, releases y bitácora) con resumen de métricas y listado cronológico.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "integer",
+                    "description": "Opcional. Filtra la actividad a un proyecto específico"
+                },
+                "days": {
+                    "type": "integer",
+                    "description": "Cantidad de días hacia atrás a consultar (ej. 1 para últimas 24h, 7 para última semana)",
+                    "default": 7
+                },
+                "entity_type": {
+                    "type": "string",
+                    "enum": ["task", "project", "sprint", "release", "bitacora"],
+                    "description": "Opcional. Filtrar por tipo de entidad"
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Máximo de eventos a devolver (por defecto 100, máx 500)",
+                    "default": 100
+                }
+            }
+        }
     }
 ]
 
 def _resolve_column_id(project_id: int, column_title: str) -> int:
+    clean = (column_title or "").strip().lower()
+    if clean in ("backlog", "backlog (ideas)", "ideas", "product backlog"):
+        return 0
     board = db.get_project_board(project_id)
     if not board:
         return 1
     for col in board.get("columns", []):
-        if col["title"].lower() == column_title.strip().lower():
+        if col["title"].lower() == clean:
             return col["id"]
-    return board["columns"][0]["id"] if board.get("columns") else 1
+    for col in board.get("columns", []):
+        if not col.get("is_backlog"):
+            return col["id"]
+    return 1
 
 def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
     try:
-        if tool_name == "list_projects":
+        if tool_name == "list_users":
+            users = db.list_users(include_inactive=False)
+            return json.dumps(users, indent=2, ensure_ascii=False)
+
+        elif tool_name == "create_user":
+            u = db.create_user(
+                name=arguments["name"],
+                email=arguments.get("email", ""),
+                role=arguments.get("role", "Miembro"),
+                area=arguments.get("area", "")
+            )
+            return f"✅ Usuario #{u['id']} '{u['name']}' registrado exitosamente."
+
+        elif tool_name == "list_projects":
             projects = db.list_projects()
             return json.dumps(projects, indent=2, ensure_ascii=False)
 
@@ -508,11 +603,33 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
 
         elif tool_name == "create_project":
             p = db.create_project(
-                arguments["name"],
-                arguments.get("description", ""),
-                arguments.get("github_url", "")
+                name=arguments["name"],
+                description=arguments.get("description", ""),
+                github_url=arguments.get("github_url", ""),
+                folder_url=arguments.get("folder_url", ""),
+                area=arguments.get("area", ""),
+                axis=arguments.get("axis", "Abierto"),
+                priority=arguments.get("priority", "Media"),
+                status=arguments.get("status", "En tiempo"),
+                stakeholder=arguments.get("stakeholder", ""),
+                area_key_user=arguments.get("area_key_user", ""),
+                owner=arguments.get("owner", ""),
+                start_date=arguments.get("start_date", ""),
+                due_date=arguments.get("due_date", ""),
+                next_step=arguments.get("next_step", ""),
+                risks_blockers=arguments.get("risks_blockers", ""),
+                is_visible=arguments.get("is_visible", True),
+                actor="MCP"
             )
             return f"✅ Proyecto #{p['id']} '{p['name']}' creado exitosamente en Higgings con su tablero y Sprint 1."
+
+        elif tool_name == "update_project":
+            pid = arguments["project_id"]
+            update_fields = {k: arguments[k] for k in _PROJECT_PROPERTIES_SCHEMA.keys() if k in arguments}
+            p = db.update_project(pid, actor="MCP", **update_fields)
+            if not p:
+                return f"Error: Proyecto #{pid} no encontrado."
+            return f"✅ Proyecto #{pid} ('{p['name']}') actualizado exitosamente."
 
         elif tool_name == "get_board_state":
             pid = arguments.get("project_id", 1)
@@ -551,7 +668,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
             assign_sprint = arguments.get("assign_to_active_sprint", True)
 
             sprint_id = None
-            if assign_sprint:
+            if assign_sprint and column_id != 0:
                 active_sprint = db.get_active_sprint(pid)
                 if active_sprint:
                     sprint_id = active_sprint["id"]
@@ -565,23 +682,25 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 story_points=points,
                 sprint_id=sprint_id,
                 tags=arguments.get("tags", []),
-                assignee=arguments.get("assignee", "Claude Agent"),
-                phase=arguments.get("phase", "Phase 1"),
-                dependency=arguments.get("dependency", "")
+                assignee=arguments.get("assignee", "Sin asignar"),
+                phase=arguments.get("phase", "Base"),
+                dependency=arguments.get("dependency", ""),
+                actor="MCP"
             )
-            location = f"al Sprint #{sprint_id}" if sprint_id else "al Product Backlog"
+            location = f"al Sprint #{sprint_id}" if task.get("sprint_id") else "al Product Backlog"
             return f"✅ Tarea #{task['id']} ('{title}') creada y asignada a [{task['assignee']}] con {points} Story Points en {location}."
 
         elif tool_name == "batch_create_tasks":
             pid = arguments["project_id"]
             tasks_input = arguments.get("tasks", [])
             active_sprint = db.get_active_sprint(pid)
-            sprint_id = active_sprint["id"] if active_sprint else None
+            default_sprint_id = active_sprint["id"] if active_sprint else None
 
             created_tasks = []
             for item in tasks_input:
                 col_name = item.get("column_title", "Por Hacer")
                 column_id = _resolve_column_id(pid, col_name)
+                sprint_id = None if column_id == 0 else default_sprint_id
                 t = db.create_task(
                     project_id=pid,
                     column_id=column_id,
@@ -591,9 +710,10 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                     story_points=item.get("story_points", 1),
                     sprint_id=sprint_id,
                     tags=item.get("tags", []),
-                    assignee=item.get("assignee", "Claude Agent"),
-                    phase=item.get("phase", "Phase 1"),
-                    dependency=item.get("dependency", "")
+                    assignee=item.get("assignee", "Sin asignar"),
+                    phase=item.get("phase", "Base"),
+                    dependency=item.get("dependency", ""),
+                    actor="MCP"
                 )
                 created_tasks.append(f"#{t['id']} {t['title']} ({t['story_points']} pts)")
 
@@ -614,7 +734,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 col_id = _resolve_column_id(task["project_id"], arguments["column_title"])
                 update_data["column_id"] = col_id
 
-            updated = db.update_task(task_id, **update_data)
+            updated = db.update_task(task_id, actor="MCP", **update_data)
             return f"✅ Tarea #{task_id} actualizada correctamente."
 
         elif tool_name == "update_task_status":
@@ -625,12 +745,12 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 return f"Error: No se encontró la tarea #{task_id}"
 
             new_col_id = _resolve_column_id(task["project_id"], new_col_name)
-            db.move_task(task_id, new_col_id, 999)
+            db.move_task(task_id, new_col_id, 999, actor="MCP")
             return f"✅ Tarea #{task_id} movida a la columna '{new_col_name}'."
 
         elif tool_name == "delete_task":
             task_id = arguments["task_id"]
-            ok = db.delete_task(task_id)
+            ok = db.delete_task(task_id, actor="MCP")
             if ok:
                 return f"✅ Tarea #{task_id} eliminada exitosamente."
             return f"Error: No se pudo eliminar la tarea #{task_id}."
@@ -649,7 +769,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
             return f"✅ Sprint #{sprint['id']} '{sprint['name']}' planificado exitosamente."
 
         elif tool_name == "complete_sprint":
-            sprint = db.complete_sprint(arguments["sprint_id"])
+            sprint = db.complete_sprint(arguments["sprint_id"], actor="MCP")
             if not sprint:
                 return "Error: Sprint no encontrado."
             return f"✅ Sprint #{sprint['id']} '{sprint['name']}' completado. Puntos conseguidos: {sprint['completed_points']} de {sprint['total_points']}."
@@ -660,7 +780,8 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
                 version_tag=arguments["version_tag"],
                 title=arguments["title"],
                 content_markdown=arguments["content_markdown"],
-                sprint_id=arguments.get("sprint_id")
+                sprint_id=arguments.get("sprint_id"),
+                actor="MCP"
             )
             return f"✅ Release registrado en Higgings: [{update['version_tag']}] {update['title']}"
 
@@ -718,7 +839,7 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
             content = arguments.get("content_markdown", "")
             title = arguments.get("title", "")
             date_str = arguments.get("entry_date", "")
-            entry = db.create_bitacora_entry(pid, content, title, date_str)
+            entry = db.create_bitacora_entry(pid, content, title, date_str, actor="MCP")
             return json.dumps({"status": "created", "entry": entry}, indent=2, ensure_ascii=False)
 
         elif tool_name == "update_bitacora_entry":
@@ -729,6 +850,15 @@ def handle_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
             if entry:
                 return json.dumps({"status": "updated", "entry": entry}, indent=2, ensure_ascii=False)
             return f"Error: No se encontró la entrada de bitácora #{eid}."
+
+        elif tool_name == "get_activity_log":
+            result = db.list_activity_logs(
+                project_id=arguments.get("project_id"),
+                days=arguments.get("days", 7),
+                entity_type=arguments.get("entity_type"),
+                limit=arguments.get("limit", 100),
+            )
+            return json.dumps(result, indent=2, ensure_ascii=False)
 
         else:
             return f"Error: Herramienta desconocida '{tool_name}'"
